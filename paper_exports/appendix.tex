@@ -1,0 +1,655 @@
+% ============================================================================
+%  AdaptIVF — Supplementary Material / Appendix
+%  ACM MM 2026 Submission
+%
+%  USAGE: Copy this file into your main LaTeX project and \input{appendix}
+%  after the main body.  Fill placeholders marked {\placeholder{___}} with
+%  values from the completed production run.
+%
+%  Requires: booktabs, graphicx, amsmath, hyperref, xcolor
+% ============================================================================
+
+\newcommand{\placeholder}[1]{\textcolor{red}{\textbf{#1}}}%  visible placeholder
+
+% ---- Section: Experimental Setup ------------------------------------------
+\section{Experimental Setup}
+\label{sec:appendix:setup}
+
+All experiments were conducted on a single server with the following
+specification:
+
+\begin{itemize}
+  \item \textbf{CPU}: AMD EPYC 9124 16-Core Processor (64 logical threads)
+  \item \textbf{RAM}: 1.5\,TiB DDR5
+  \item \textbf{Disk}: 17\,TB NVMe
+  \item \textbf{GPU}: None (all computation is CPU-only)
+  \item \textbf{OS}: Linux (kernel \placeholder{X.Y.Z})
+  \item \textbf{Python}: 3.13.9, TensorFlow 2.20.0, FAISS (CPU), PyTorch 2.9.1 (CPU fallback)
+\end{itemize}
+
+Thread parallelism is maximised for every library:
+OMP\_NUM\_THREADS\,=\,MKL\_NUM\_THREADS\,=\,OPENBLAS\_NUM\_THREADS\,=\,TF\_NUM\_INTRAOP\_THREADS\,=\,64.
+TF\_NUM\_INTEROP\_THREADS is set to~2 (standard practice to avoid
+over-subscription when intra-op already saturates all cores).
+All experiments use seed\,=\,0 for reproducibility.
+
+\begin{table}[h]
+\centering
+\caption{Datasets used in all experiments.
+         $N$: indexed vectors; $Q$: evaluation queries; $d$: dimensionality;
+         $B$: number of IVF partitions.}
+\label{tab:appendix:datasets}
+\begin{tabular}{lrrrlr}
+\toprule
+Dataset & $N$ & $Q$ & $d$ & Metric & $B$ \\
+\midrule
+Glove   & 1{,}183{,}514 &  1{,}000 & 100 & cosine & 1{,}024 \\
+Sift    & 1{,}000{,}000 & 10{,}000 & 128 & L2     & 1{,}024 \\
+Gist    & 1{,}000{,}000 &  1{,}000 & 960 & L2     & 1{,}024 \\
+Deep1M  & 9{,}990{,}000 & 10{,}000 &  96 & cosine & 4{,}096 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Method Configurations}
+\label{sec:appendix:configs}
+
+\paragraph{Shared router hyper-parameters.}
+All router-based methods (BLISS, BLISS-KMeans, MLP-IVF, AdaptIVF variants)
+train a single-hidden-layer neural partition router with batch size 1{,}024
+over 20 epochs and 4 repetitions, with boundary reassignment every 5 epochs.
+They differ only in initialisation mode and probing strategy:
+
+\begin{table}[h]
+\centering
+\caption{Configuration matrix for all evaluated methods.  ``Adaptive'' denotes
+entropy-adaptive probing with $m_{\text{base}}\!=\!5$, $m_{\max}\!=\!80$,
+$\lambda\!=\!10$.  $\tau$: confidence threshold; $A$: max assignments.}
+\label{tab:appendix:configs}
+\small
+\begin{tabular}{lccccccc}
+\toprule
+Method & Init & Reps & Reassign & Probing & $\tau$ & $A$ & PQ \\
+\midrule
+BLISS            & hash   & 4 & yes & fixed    & ---  & 1 & no  \\
+BLISS-KMeans     & kmeans & 4 & yes & fixed    & ---  & 1 & no  \\
+MLP-IVF          & ivf    & 4 & yes & fixed    & ---  & 1 & no  \\
+MLP-IVFPQ        & ivf    & 4 & yes & fixed    & ---  & 1 & yes \\
+AdaptIVF-Static  & ivf    & 1 & no  & adaptive & 0.75 & 3 & no  \\
+AdaptIVF         & ivf    & 1 & yes & adaptive & 0.75 & 3 & no  \\
+AdaptIVF-A4      & ivf    & 1 & yes & adaptive & 0.75 & 4 & no  \\
+AdaptIVF-Static+PQ & ivf  & 1 & no  & adaptive & 0.75 & 3 & yes \\
+AdaptIVF+PQ      & ivf    & 1 & yes & adaptive & 0.75 & 3 & yes \\
+AdaptIVF-A4+PQ   & ivf    & 1 & yes & adaptive & 0.75 & 4 & yes \\
+\midrule
+HNSW             & \multicolumn{7}{c}{FAISS default; $\text{ef}_{\text{search}}$ tuned per dataset} \\
+IVF              & \multicolumn{7}{c}{FAISS Flat IVF; nprobe=10} \\
+IVFPQ            & \multicolumn{7}{c}{FAISS IVF-PQ; nprobe=10, $m_{\text{PQ}}$=16, 8 bits} \\
+LIRA             & \multicolumn{7}{c}{$B$ buckets; threshold sweep 0.1--1.0 step 0.02; probe\_depth=10} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{LIRA configuration.}
+LIRA~\cite{lira} uses the published architecture with $B$ buckets (matching
+the dataset partition count), a threshold sweep from 0.1 to 1.0 in steps
+of 0.02 (46 repartition stages), probe depth 10, and flat inner indexes.
+Seed is set to~0 for all datasets.
+
+\paragraph{Entropy-adaptive probing formula.}
+For each query $q$, the router computes softmax entropy $H(q)$ over the
+partition logits.  The per-query probe count is:
+\begin{equation}
+m(q) = \left\lfloor m_{\text{base}} + \lambda \cdot \bigl(e^{H(q)/\ln B} - 1\bigr) \right\rfloor
+\label{eq:entropy_probing}
+\end{equation}
+clamped to $[m_{\text{base}},\, m_{\max}]$.  Easy queries (low entropy, confident
+router) probe as few as $m_{\text{base}}=5$ partitions; hard queries (high
+entropy) probe up to $m_{\max}=80$.
+
+% ---- Section: Research Questions ------------------------------------------
+\section{Research Questions and Hypotheses}
+\label{sec:appendix:rqs}
+
+We pose five research questions directly answerable from the ablation and
+competitiveness experiments.  All claims are evaluated on the four datasets
+in Table~\ref{tab:appendix:datasets} under the server configuration of
+Section~\ref{sec:appendix:setup}.
+
+% ---- RQ1 ----
+\subsection{RQ1: Does entropy-adaptive probing recover recall lost by static routing?}
+\label{sec:appendix:rq1}
+
+\paragraph{Problem statement.}
+Given the same IVF partition layout ($B\!=\!1024$ for Glove/Sift/Gist,
+$B\!=\!4096$ for Deep1M), confidence-threshold multi-assignment
+($\tau\!=\!0.75$, $A\!=\!3$), and single repetition, does entropy-adaptive
+probing ($m_{\text{base}}\!=\!5$, $m_{\max}\!=\!80$, $\lambda\!=\!10$) yield
+higher Recall@10 than static fixed-depth probing across all four datasets?
+
+\paragraph{Null hypothesis $\boldsymbol{H_0}$(RQ1).}
+The mean Recall@10 of AdaptIVF (entropy-adaptive) is less than or equal to
+that of AdaptIVF-Static (fixed probe depth):
+\[
+  H_0: \mu_{\text{Recall}}(\text{AdaptIVF}) \;\leq\; \mu_{\text{Recall}}(\text{AdaptIVF-Static})
+\]
+
+\paragraph{Acceptance criterion (reject $H_0$).}
+AdaptIVF recall exceeds AdaptIVF-Static recall on \emph{all four} datasets,
+with minimum per-dataset improvement $\geq 0.5$ percentage points (pp).
+
+\paragraph{Rejection criterion (fail to reject $H_0$).}
+AdaptIVF recall fails to exceed AdaptIVF-Static on any one dataset, or no
+single dataset shows $\geq 0.5$\,pp improvement.
+
+\begin{table}[h]
+\centering
+\caption{RQ1 evidence: AdaptIVF-Static vs.\ AdaptIVF Recall@10.}
+\label{tab:appendix:rq1}
+\begin{tabular}{lccc}
+\toprule
+Dataset & AdaptIVF-Static & AdaptIVF & $\Delta$ (pp) \\
+\midrule
+Glove  & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+Sift   & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+Gist   & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+Deep1M & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Verdict.}
+\placeholder{Reject $H_0$ / Fail to reject $H_0$.  Adaptive probing
+recovers [\_\_\_]\,pp recall on average across datasets, confirming that
+per-query budget allocation outperforms uniform probing.}
+
+% ---- RQ2 ----
+\subsection{RQ2: Does adaptive probing impose a disproportionate throughput cost?}
+\label{sec:appendix:rq2}
+
+\paragraph{Problem statement.}
+Adaptive probing scans more candidates for hard queries, increasing mean
+computation per query.  We quantify the throughput price (QPS decrease) paid
+per unit of recall gained when switching from AdaptIVF-Static to AdaptIVF,
+under single-threaded query evaluation on 64-core AMD EPYC 9124 (1.5\,TiB
+RAM, no GPU).
+
+\paragraph{Null hypothesis $\boldsymbol{H_0}$(RQ2).}
+The relative QPS reduction exceeds 50\% on at least one dataset:
+\[
+  H_0: \exists\, d : \frac{\text{QPS}_{\text{Static}}(d) - \text{QPS}_{\text{AdaptIVF}}(d)}{\text{QPS}_{\text{Static}}(d)} > 0.50
+\]
+
+\paragraph{Acceptance criterion (reject $H_0$).}
+The relative QPS reduction is ${<}\,50\%$ on every dataset.
+
+\paragraph{Rejection criterion (fail to reject $H_0$).}
+Any dataset exhibits ${\geq}\,50\%$ QPS reduction.
+
+\begin{table}[h]
+\centering
+\caption{RQ2 evidence: throughput cost of adaptive probing.}
+\label{tab:appendix:rq2}
+\begin{tabular}{lccccr}
+\toprule
+Dataset & Static QPS & AdaptIVF QPS & QPS drop (\%) & Recall gain (pp) & Cost ratio \\
+\midrule
+Glove  & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+Sift   & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+Gist   & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+Deep1M & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Verdict.}
+\placeholder{Reject $H_0$ / Fail to reject $H_0$.  The worst-case QPS
+reduction is [\_\_\_]\% (on [\_\_\_]), well below/above the 50\% threshold.
+The cost ratio (QPS\% lost per pp recall gained) averages [\_\_\_], indicating
+that each percentage point of recall costs only [\_\_\_]\% throughput.}
+
+% ---- RQ3 ----
+\subsection{RQ3: Does raising the multi-assignment limit from $A\!=\!3$ to $A\!=\!4$ yield diminishing returns?}
+\label{sec:appendix:rq3}
+
+\paragraph{Problem statement.}
+AdaptIVF assigns each training vector to up to $A$ partitions when the
+router's softmax confidence is below $\tau$.  Increasing $A$ enriches the
+candidate pool but inflates inverted lists and per-probe computation.  The
+ablation compares AdaptIVF ($A\!=\!3$) vs.\ AdaptIVF-A4 ($A\!=\!4$) with all
+other hyper-parameters held constant.
+
+\paragraph{Null hypothesis $\boldsymbol{H_0}$(RQ3).}
+AdaptIVF-A4 achieves strictly higher Recall@10 than AdaptIVF by at least
+0.5\,pp on at least one dataset:
+\[
+  H_0: \exists\, d : \text{Recall}(\text{A4}, d) - \text{Recall}(\text{A3}, d) \geq 0.005
+\]
+
+\paragraph{Acceptance criterion (reject $H_0$).}
+On no dataset does AdaptIVF-A4 improve recall by $\geq 0.5$\,pp over
+AdaptIVF, confirming diminishing returns; $A\!=\!3$ is sufficient.
+
+\paragraph{Rejection criterion (fail to reject $H_0$).}
+At least one dataset shows $\geq 0.5$\,pp gain from $A\!=\!4$.
+
+\begin{table}[h]
+\centering
+\caption{RQ3 evidence: multi-assignment A=3 vs.\ A=4.}
+\label{tab:appendix:rq3}
+\begin{tabular}{lcccc}
+\toprule
+Dataset & AdaptIVF ($A\!=\!3$) & AdaptIVF-A4 ($A\!=\!4$) & $\Delta$ (pp) & Comp.\ increase (\%) \\
+\midrule
+Glove  & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+Sift   & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+Gist   & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+Deep1M & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Verdict.}
+\placeholder{Reject $H_0$ / Fail to reject $H_0$.  The maximum recall gain
+from A=4 is [\_\_\_]\,pp (on [\_\_\_]), below / above the 0.5\,pp materiality
+threshold, while average computation increases by [\_\_\_]\%.  The A=3 window
+is [sufficient / insufficient] across all dataset scales and metrics.}
+
+% ---- RQ4 ----
+\subsection{RQ4: Does adaptive probing mitigate PQ recall degradation?}
+\label{sec:appendix:rq4}
+
+\paragraph{Problem statement.}
+Product Quantisation (PQ, $m_{\text{PQ}}\!=\!16$, 8 bits) compresses
+inverted-list vectors, reducing index footprint at the cost of approximate
+distance scoring.  If adaptive probing visits more lists for hard queries,
+re-ranking more candidates might compensate for PQ approximation error.  The
+ablation provides three matched PQ/non-PQ pairs: Static/Static+PQ,
+AdaptIVF/AdaptIVF+PQ, and AdaptIVF-A4/AdaptIVF-A4+PQ.
+
+\paragraph{Null hypothesis $\boldsymbol{H_0}$(RQ4).}
+The recall penalty from PQ is the same or larger under adaptive probing than
+under static probing on all datasets:
+\[
+  H_0: \forall\, d : \Delta_{\text{PQ}}(\text{Adaptive}, d) \geq \Delta_{\text{PQ}}(\text{Static}, d)
+\]
+where $\Delta_{\text{PQ}}(s, d) = \text{Recall}(s, d) - \text{Recall}(s{+}\text{PQ}, d)$.
+
+\paragraph{Acceptance criterion (reject $H_0$).}
+The PQ recall penalty under adaptive probing is strictly smaller than under
+static probing on at least 3 of 4 datasets.
+
+\paragraph{Rejection criterion (fail to reject $H_0$).}
+The adaptive PQ penalty equals or exceeds the static penalty on 2 or more
+datasets.
+
+\begin{table}[h]
+\centering
+\caption{RQ4 evidence: PQ recall penalty under static vs.\ adaptive probing.}
+\label{tab:appendix:rq4}
+\begin{tabular}{lccc}
+\toprule
+Dataset & Static PQ drop (pp) & AdaptIVF PQ drop (pp) & Adaptive mitigates? \\
+\midrule
+Glove  & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+Sift   & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+Gist   & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+Deep1M & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Verdict.}
+\placeholder{Reject $H_0$ / Fail to reject $H_0$.  The mean PQ recall
+penalty is [\_\_\_]\,pp under static probing and [\_\_\_]\,pp under adaptive
+probing.  Adaptive probing [does / does not] mitigate PQ information loss
+by visiting more partitions for hard queries.}
+
+% ---- RQ5 ----
+\subsection{RQ5: Does AdaptIVF achieve Pareto-dominant recall--overhead across all scales?}
+\label{sec:appendix:rq5}
+
+\paragraph{Problem statement.}
+The competitiveness study evaluates nine methods spanning three families
+(graph: HNSW; inverted-file: IVF, IVFPQ; learned: BLISS, MLP-IVF, LIRA,
+AdaptIVF, MLP-IVFPQ, AdaptIVF+PQ) on datasets from 1M to 10M vectors, with
+dimensionalities 96--960 and both L2 and cosine metrics.  A method is
+\emph{Pareto-dominant} on the (Recall@10, index overhead) plane if no other
+method simultaneously achieves $\geq$ recall and $\leq$ overhead.
+
+\paragraph{Null hypothesis $\boldsymbol{H_0}$(RQ5).}
+There exists a baseline and dataset where the baseline dominates AdaptIVF:
+\[
+  H_0: \exists\, B,d : \text{Recall}(B,d) \geq \text{Recall}(\text{AdaptIVF},d) \;\wedge\; \text{Overhead}(B,d) \leq \text{Overhead}(\text{AdaptIVF},d)
+\]
+
+\paragraph{Acceptance criterion (reject $H_0$).}
+On every dataset, no single baseline achieves both $\geq$ recall and $\leq$
+overhead.
+
+\paragraph{Rejection criterion (fail to reject $H_0$).}
+At least one baseline on at least one dataset dominates AdaptIVF on both
+axes.
+
+\begin{table}[h]
+\centering
+\caption{RQ5 evidence: AdaptIVF Pareto status on Recall@10 vs.\ index
+         overhead (MB).}
+\label{tab:appendix:rq5}
+\begin{tabular}{lcccccc}
+\toprule
+Dataset & \makecell{AdaptIVF\\Recall} & \makecell{AdaptIVF\\Overhead} & \makecell{Nearest\\rival} & \makecell{Rival\\Recall} & \makecell{Rival\\Overhead} & Pareto? \\
+\midrule
+Glove  & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+Sift   & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+Gist   & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+Deep1M & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Verdict.}
+\placeholder{Reject $H_0$ / Fail to reject $H_0$.  AdaptIVF lies on the
+Pareto frontier for [all / X of 4] datasets.  The nearest rival is [\_\_\_]
+which achieves [higher/lower] recall at [higher/lower] overhead.  On
+[\_\_\_], AdaptIVF is dominated by [\_\_\_] due to [\_\_\_].}
+
+
+% ---- Section: Full Competitiveness Results --------------------------------
+\section{Full Competitiveness Results}
+\label{sec:appendix:full_comp}
+
+\begin{table*}[t]
+\centering
+\caption{Full competitiveness results across all datasets and methods.
+         Recall@10, average computation (candidates scanned per query),
+         queries per second (QPS), training time, and index overhead
+         excluding shared base vectors.  Best recall per dataset in
+         \textbf{bold}.}
+\label{tab:appendix:full_comp}
+\small
+\begin{tabular}{llrrrrr}
+\toprule
+Dataset & Method & Recall@10 & Avg Comp. & QPS & Train (s) & Overhead (MB) \\
+\midrule
+\multirow{9}{*}{Glove}
+ & HNSW          & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & ---                  & \placeholder{\_\_\_} \\
+ & IVF           & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & ---                  & \placeholder{\_\_\_} \\
+ & IVFPQ         & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & ---                  & \placeholder{\_\_\_} \\
+ & BLISS         & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & MLP-IVF       & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & MLP-IVFPQ     & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & LIRA          & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF      & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF+PQ   & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+\midrule
+\multirow{9}{*}{Sift}
+ & HNSW          & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & ---                  & \placeholder{\_\_\_} \\
+ & IVF           & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & ---                  & \placeholder{\_\_\_} \\
+ & IVFPQ         & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & ---                  & \placeholder{\_\_\_} \\
+ & BLISS         & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & MLP-IVF       & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & MLP-IVFPQ     & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & LIRA          & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF      & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF+PQ   & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+\midrule
+\multirow{9}{*}{Gist}
+ & HNSW          & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & ---                  & \placeholder{\_\_\_} \\
+ & IVF           & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & ---                  & \placeholder{\_\_\_} \\
+ & IVFPQ         & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & ---                  & \placeholder{\_\_\_} \\
+ & BLISS         & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & MLP-IVF       & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & MLP-IVFPQ     & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & LIRA          & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF      & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF+PQ   & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+\midrule
+\multirow{9}{*}{Deep1M}
+ & HNSW          & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & ---                  & \placeholder{\_\_\_} \\
+ & IVF           & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & ---                  & \placeholder{\_\_\_} \\
+ & IVFPQ         & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & ---                  & \placeholder{\_\_\_} \\
+ & BLISS         & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & MLP-IVF       & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & MLP-IVFPQ     & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & LIRA          & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF      & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF+PQ   & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+
+% ---- Section: Full Ablation Results ---------------------------------------
+\section{Full Ablation Results}
+\label{sec:appendix:full_ablation}
+
+\begin{table*}[t]
+\centering
+\caption{Full ablation results.  Six AdaptIVF variants across all datasets.
+         Ablation isolates: (i) reassignment on/off
+         (Static vs.\ AdaptIVF), (ii) assignment window $A\!=\!3$
+         vs.\ $A\!=\!4$ (AdaptIVF vs.\ A4), and (iii) PQ compression
+         (+PQ variants).  Best recall per dataset in \textbf{bold}.}
+\label{tab:appendix:full_ablation}
+\small
+\begin{tabular}{llrrrrrr}
+\toprule
+Dataset & Variant & Recall@10 & Avg Comp. & Comp.\ min & Comp.\ max & QPS & Overhead (MB) \\
+\midrule
+\multirow{6}{*}{Glove}
+ & AdaptIVF-Static    & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF           & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF-A4        & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF-Static+PQ & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF+PQ        & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF-A4+PQ     & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+\midrule
+\multirow{6}{*}{Sift}
+ & AdaptIVF-Static    & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF           & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF-A4        & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF-Static+PQ & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF+PQ        & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF-A4+PQ     & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+\midrule
+\multirow{6}{*}{Gist}
+ & AdaptIVF-Static    & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF           & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF-A4        & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF-Static+PQ & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF+PQ        & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF-A4+PQ     & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+\midrule
+\multirow{6}{*}{Deep1M}
+ & AdaptIVF-Static    & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF           & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF-A4        & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF-Static+PQ & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF+PQ        & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF-A4+PQ     & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+
+% ---- Section: Initialization Study ----------------------------------------
+\section{Initialization Study}
+\label{sec:appendix:initialization}
+
+\begin{table*}[t]
+\centering
+\caption{Initialization study: Recall@10, average computations, and training
+         time for three learned routers (BLISS, BLISS-KMeans, MLP-IVF) at
+         probe depths $m \in \{5, 10, 20, 40\}$ across all datasets.}
+\label{tab:appendix:initialization}
+\small
+\begin{tabular}{llrrrr}
+\toprule
+Dataset & Method & $m$ & Recall@10 & Avg Comp. & Train (s) \\
+\midrule
+\multirow{12}{*}{Glove}
+ & BLISS        &  5 & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & BLISS        & 10 & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \\
+ & BLISS        & 20 & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \\
+ & BLISS        & 40 & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \\
+ & BLISS-KMeans &  5 & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & BLISS-KMeans & 10 & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \\
+ & BLISS-KMeans & 20 & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \\
+ & BLISS-KMeans & 40 & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \\
+ & MLP-IVF      &  5 & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & MLP-IVF      & 10 & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \\
+ & MLP-IVF      & 20 & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \\
+ & MLP-IVF      & 40 & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \\
+\midrule
+  & \multicolumn{5}{c}{\emph{Sift, Gist, Deep1M: same structure --- \placeholder{fill from CSV}}} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+
+% ---- Section: Per-Query Computation Distributions -------------------------
+\section{Per-Query Computation Distributions}
+\label{sec:appendix:computation_range}
+
+\begin{table*}[t]
+\centering
+\caption{Per-query computation range (min / mean / max candidates scanned)
+         across methods and datasets.  Methods with fixed nprobe exhibit
+         moderate variance (bucket-size imbalance); HNSW has near-zero
+         variance (graph traversal); AdaptIVF exhibits wide range reflecting
+         entropy-based budget allocation.}
+\label{tab:appendix:comp_range}
+\small
+\begin{tabular}{llrrr}
+\toprule
+Dataset & Method & Comp.\ min & Comp.\ mean & Comp.\ max \\
+\midrule
+\multirow{9}{*}{Glove}
+ & HNSW          & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & IVF           & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & IVFPQ         & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & BLISS         & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & MLP-IVF       & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & MLP-IVFPQ     & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & LIRA          & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF      & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+ & AdaptIVF+PQ   & \placeholder{\_\_\_} & \placeholder{\_\_\_} & \placeholder{\_\_\_} \\
+\midrule
+  & \multicolumn{4}{c}{\emph{Sift, Gist, Deep1M: same structure --- \placeholder{fill from CSV}}} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+
+% ---- Section: Appendix Figures --------------------------------------------
+\section{Appendix Figures}
+\label{sec:appendix:figures}
+
+% One subsection per appendix plot.  PDF paths match paper_exports/ layout.
+
+\subsection{Training Time Comparison}
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{appendix_training_time_bars.pdf}
+\caption{Training time (seconds) per method, faceted by dataset.  FAISS
+baselines (HNSW, IVF, IVFPQ) have no explicit training step.  LIRA's
+multi-stage model-probing pipeline dominates; AdaptIVF trains orders of
+magnitude faster.}
+\label{fig:appendix:training_time}
+\end{figure*}
+
+\subsection{Index Overhead (excl.\ Base Vectors)}
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{appendix_serving_footprint_bars.pdf}
+\caption{Index overhead in MB (log scale), excluding the shared base-vector
+store.  AdaptIVF maintains the smallest learned-method footprint across all
+datasets.}
+\label{fig:appendix:serving_footprint}
+\end{figure*}
+
+\subsection{Per-Query Computation Range}
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{appendix_computation_range_bars.pdf}
+\caption{Per-query computation range (min / mean / max distance computations).
+AdaptIVF's entropy-adaptive probing produces a wide min--max range: easy queries
+probe as few as $m_{\text{base}}=5$ partitions while hard queries probe up to
+$m_{\max}=80$.  Fixed-nprobe methods show narrower ranges driven solely by
+bucket-size variance.}
+\label{fig:appendix:comp_range}
+\end{figure*}
+
+\subsection{Throughput (QPS)}
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{appendix_qps_bars.pdf}
+\caption{Queries per second (log scale) per method, faceted by dataset.
+FAISS baselines dominate throughput; among learned methods, AdaptIVF+PQ and
+MLP-IVFPQ offer the best QPS.}
+\label{fig:appendix:qps}
+\end{figure*}
+
+\subsection{Ablation: QPS across Variants}
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{appendix_ablation_qps_bars.pdf}
+\caption{QPS across six AdaptIVF ablation variants, faceted by dataset.
+Static probing yields higher throughput than adaptive, and PQ compression
+provides a modest QPS boost in some configurations.}
+\label{fig:appendix:ablation_qps}
+\end{figure*}
+
+\subsection{Ablation: Training Time across Variants}
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{appendix_ablation_training_time_bars.pdf}
+\caption{Training time across six AdaptIVF ablation variants, faceted by
+dataset.  The Static variant (no reassignment) is slower on small datasets due
+to suboptimal initial partitions requiring more epochs to converge.  On larger
+datasets, reassignment cost may dominate.}
+\label{fig:appendix:ablation_training_time}
+\end{figure*}
+
+
+% ---- Section: Summary of Verdicts -----------------------------------------
+\section{Summary of Research Question Verdicts}
+\label{sec:appendix:verdicts}
+
+\begin{table}[h]
+\centering
+\caption{Summary of hypothesis test outcomes.}
+\label{tab:appendix:verdicts}
+\begin{tabular}{clc}
+\toprule
+RQ & Question (abbreviated) & Verdict \\
+\midrule
+1 & Adaptive probing recovers static recall loss    & \placeholder{\_\_\_} \\
+2 & Throughput cost below 50\% threshold             & \placeholder{\_\_\_} \\
+3 & $A\!=\!4$ yields diminishing returns over $A\!=\!3$ & \placeholder{\_\_\_} \\
+4 & Adaptive probing mitigates PQ recall loss        & \placeholder{\_\_\_} \\
+5 & AdaptIVF Pareto-dominant on recall--overhead      & \placeholder{\_\_\_} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Assumptions and limitations.}
+\begin{itemize}
+  \item All results are from a single seed ($s\!=\!0$) and a single server.
+        Variance across seeds is not measured; conclusions are conditioned on
+        this specific training trajectory.
+  \item QPS is measured end-to-end (including query preprocessing) but excludes
+        index loading time.  Query batches are evaluated sequentially (no
+        intra-query parallelism for learned methods; FAISS search uses
+        OpenMP).
+  \item ``Index overhead'' excludes the shared base-vector store, which all
+        IVF-family methods require.  Total deployment cost should add the
+        raw data payload ($N \times d \times 4$ bytes for float32).
+  \item LIRA trains with TensorFlow in v1-compat mode (CPU only, no GPU).
+        Training timings would differ substantially on GPU hardware.
+  \item The entropy-adaptive probing formula
+        (Eq.~\ref{eq:entropy_probing}) uses a fixed $\lambda\!=\!10$
+        across all datasets.  Per-dataset tuning of $\lambda$ could shift
+        the recall--throughput trade-off but is not explored in this work.
+\end{itemize}

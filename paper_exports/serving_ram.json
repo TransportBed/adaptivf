@@ -1,0 +1,119 @@
+[
+  {
+    "rss_baseline_mb": 9.67578125,
+    "rss_serving_mb": 798.31640625,
+    "rss_peak_mb": 798.31640625,
+    "method_overhead_mb": 788.640625,
+    "experiment": "/data/experiments/git_repos/experiments/adaptivf/glove/20260327-125610-747353_hnsw_seed0",
+    "method": "HNSW",
+    "dataset": "glove"
+  },
+  {
+    "rss_baseline_mb": 10.73828125,
+    "rss_serving_mb": 501.6328125,
+    "rss_peak_mb": 501.6328125,
+    "method_overhead_mb": 490.89453125,
+    "experiment": "/data/experiments/git_repos/experiments/adaptivf/glove/20260327-125652-897217_ivf_seed0",
+    "method": "IVF",
+    "dataset": "glove"
+  },
+  {
+    "rss_baseline_mb": 10.73046875,
+    "rss_serving_mb": 518.76953125,
+    "rss_peak_mb": 518.78125,
+    "method_overhead_mb": 508.0390625,
+    "experiment": "/data/experiments/git_repos/experiments/adaptivf/glove/20260327-125731-199512_mlp_ivf_seed0",
+    "method": "MLP-IVF",
+    "dataset": "glove"
+  },
+  {
+    "rss_baseline_mb": 10.75,
+    "rss_serving_mb": 517.9140625,
+    "rss_peak_mb": 518.16015625,
+    "method_overhead_mb": 507.1640625,
+    "experiment": "/data/experiments/git_repos/experiments/adaptivf/glove/20260327-132040-215273_bliss_seed0",
+    "method": "BLISS",
+    "dataset": "glove"
+  },
+  {
+    "rss_baseline_mb": 10.73828125,
+    "rss_serving_mb": 1001.265625,
+    "rss_peak_mb": 1004.25,
+    "method_overhead_mb": 990.52734375,
+    "experiment": "/data/experiments/git_repos/experiments/adaptivf/glove/20260327-134346-777997_lira_seed0",
+    "method": "LIRA",
+    "dataset": "glove"
+  },
+  {
+    "rss_baseline_mb": 10.72265625,
+    "rss_serving_mb": 508.4453125,
+    "rss_peak_mb": 512.55859375,
+    "method_overhead_mb": 497.72265625,
+    "experiment": "/data/experiments/git_repos/experiments/adaptivf/glove/20260328-023230-465921_adaptivf_seed0",
+    "method": "AdaptIVF",
+    "dataset": "glove"
+  },
+  {
+    "rss_baseline_mb": 10.73828125,
+    "rss_serving_mb": 84.28515625,
+    "rss_peak_mb": 84.28515625,
+    "method_overhead_mb": 73.546875,
+    "experiment": "/data/experiments/git_repos/experiments/adaptivf/glove/20260328-023921-516249_ivfpq_seed0",
+    "method": "IVFPQ",
+    "dataset": "glove"
+  },
+  {
+    "rss_baseline_mb": 11.33203125,
+    "rss_serving_mb": 540.0234375,
+    "rss_peak_mb": 540.0234375,
+    "method_overhead_mb": 528.69140625,
+    "experiment": "/data/experiments/git_repos/experiments/adaptivf/glove/20260328-024010-092793_mlp_ivfpq_seed0",
+    "method": "MLP-IVFPQ",
+    "dataset": "glove"
+  },
+  {
+    "rss_baseline_mb": 10.734375,
+    "rss_serving_mb": 526.6328125,
+    "rss_peak_mb": 531.08984375,
+    "method_overhead_mb": 515.8984375,
+    "experiment": "/data/experiments/git_repos/experiments/adaptivf/glove/20260328-030916-794259_adaptivfppq_seed0",
+    "method": "AdaptIVF+PQ",
+    "dataset": "glove"
+  },
+  {
+    "rss_baseline_mb": 10.71875,
+    "rss_serving_mb": 788.6015625,
+    "rss_peak_mb": 788.6015625,
+    "method_overhead_mb": 777.8828125,
+    "experiment": "/data/experiments/git_repos/experiments/adaptivf/sift/20260328-032421-909513_hnsw_seed0",
+    "method": "HNSW",
+    "dataset": "sift"
+  },
+  {
+    "rss_baseline_mb": 10.72265625,
+    "rss_serving_mb": 536.5390625,
+    "rss_peak_mb": 536.5390625,
+    "method_overhead_mb": 525.81640625,
+    "experiment": "/data/experiments/git_repos/experiments/adaptivf/sift/20260328-032448-952352_ivf_seed0",
+    "method": "IVF",
+    "dataset": "sift"
+  },
+  {
+    "rss_baseline_mb": 10.73828125,
+    "rss_serving_mb": 551.14453125,
+    "rss_peak_mb": 551.37109375,
+    "method_overhead_mb": 540.40625,
+    "experiment": "/data/experiments/git_repos/experiments/adaptivf/sift/20260328-032533-312085_mlp_ivf_seed0",
+    "method": "MLP-IVF",
+    "dataset": "sift"
+  },
+  {
+    "rss_baseline_mb": 10.73828125,
+    "rss_serving_mb": 550.8203125,
+    "rss_peak_mb": 550.90234375,
+    "method_overhead_mb": 540.08203125,
+    "experiment": "/data/experiments/git_repos/experiments/adaptivf/sift/20260328-035234-902754_bliss_seed0",
+    "method": "BLISS",
+    "dataset": "sift"
+  }
+]

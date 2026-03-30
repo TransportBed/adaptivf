@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "adaptivf"
+version = "0.1.0"
+description = "Paper-only AdaptIVF repository."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.26",
+  "h5py>=3.10",
+  "PyYAML>=6.0",
+  "pandas>=2.2",
+  "matplotlib>=3.8",
+  "scikit-learn>=1.4",
+]
+
+[project.optional-dependencies]
+faiss = ["faiss-cpu>=1.9.0"]
+bliss = [
+  "tensorflow>=2.15,<2.18",
+  "cython>=0.29.36",
+]
+lira = ["torch>=2.2"]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.4",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+py-modules = ["adaptivf", "ann_ops", "artifacts", "cli_clean_artifacts", "cli_run_competitiveness", "cli_run_faiss_baselines", "cli_run_plan", "cli_run_router_methods", "console", "datasets", "index_manifest", "measurement_contract", "metrics", "plots", "pq", "presets", "collect", "run_faiss_query_isolated", "run_lira_query_isolated", "run_router_query_isolated", "tables"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

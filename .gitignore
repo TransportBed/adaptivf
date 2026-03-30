@@ -1,0 +1,106 @@
+# ============================================================================
+# Python
+# ============================================================================
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+*.egg
+*.egg-info/
+build/
+dist/
+sdist/
+wheels/
+.eggs/
+*.whl
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Testing & linting
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# ============================================================================
+# Data & experiment artifacts (large, machine-generated)
+# ============================================================================
+data/
+logs/
+experiments/
+cache/
+.numba_cache/
+paper_exports_bak*/
+
+# Binary data formats
+*.npy
+*.npz
+*.dat
+*.hdf5
+*.h5
+*.part
+*.tmp
+
+# ============================================================================
+# LaTeX
+# ============================================================================
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.out
+*.toc
+*.synctex.gz
+*.synctex(busy)
+*.run.xml
+*.bcf
+*.nav
+*.snm
+*.vrb
+*.idx
+*.ilg
+*.ind
+
+# ============================================================================
+# Generated outputs (plots, tables, logs)
+# ============================================================================
+*.png
+*.pdf
+*.svg
+*.csv
+*.json
+*.log
+
+# Keep paper_exports/ tracked (generated but version-controlled for review)
+!paper_exports/
+!paper_exports/**
+
+# ============================================================================
+# IDE & OS
+# ============================================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ============================================================================
+# Secrets & environment
+# ============================================================================
+.env
+.env.*
+
+# ============================================================================
+# Lock file (full conda dump — reproducibility reference only)
+# ============================================================================
+requirements-lock.txt
