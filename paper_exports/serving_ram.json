@@ -1,119 +1,398 @@
 [
   {
-    "rss_baseline_mb": 9.67578125,
-    "rss_serving_mb": 798.31640625,
-    "rss_peak_mb": 798.31640625,
-    "method_overhead_mb": 788.640625,
-    "experiment": "/data/experiments/git_repos/experiments/adaptivf/glove/20260327-125610-747353_hnsw_seed0",
-    "method": "HNSW",
-    "dataset": "glove"
-  },
-  {
-    "rss_baseline_mb": 10.73828125,
-    "rss_serving_mb": 501.6328125,
-    "rss_peak_mb": 501.6328125,
-    "method_overhead_mb": 490.89453125,
-    "experiment": "/data/experiments/git_repos/experiments/adaptivf/glove/20260327-125652-897217_ivf_seed0",
-    "method": "IVF",
-    "dataset": "glove"
-  },
-  {
-    "rss_baseline_mb": 10.73046875,
-    "rss_serving_mb": 518.76953125,
-    "rss_peak_mb": 518.78125,
-    "method_overhead_mb": 508.0390625,
-    "experiment": "/data/experiments/git_repos/experiments/adaptivf/glove/20260327-125731-199512_mlp_ivf_seed0",
-    "method": "MLP-IVF",
-    "dataset": "glove"
-  },
-  {
-    "rss_baseline_mb": 10.75,
-    "rss_serving_mb": 517.9140625,
-    "rss_peak_mb": 518.16015625,
-    "method_overhead_mb": 507.1640625,
-    "experiment": "/data/experiments/git_repos/experiments/adaptivf/glove/20260327-132040-215273_bliss_seed0",
-    "method": "BLISS",
-    "dataset": "glove"
-  },
-  {
-    "rss_baseline_mb": 10.73828125,
-    "rss_serving_mb": 1001.265625,
-    "rss_peak_mb": 1004.25,
-    "method_overhead_mb": 990.52734375,
-    "experiment": "/data/experiments/git_repos/experiments/adaptivf/glove/20260327-134346-777997_lira_seed0",
-    "method": "LIRA",
-    "dataset": "glove"
-  },
-  {
-    "rss_baseline_mb": 10.72265625,
-    "rss_serving_mb": 508.4453125,
-    "rss_peak_mb": 512.55859375,
-    "method_overhead_mb": 497.72265625,
-    "experiment": "/data/experiments/git_repos/experiments/adaptivf/glove/20260328-023230-465921_adaptivf_seed0",
+    "dataset": "deep1m",
+    "experiment": "../experiments/adaptivf/deep1m/20260331-174055-963868_adaptivf_seed0",
     "method": "AdaptIVF",
-    "dataset": "glove"
+    "method_overhead_mb": 3829.5546875,
+    "rss_baseline_mb": 10.76171875,
+    "rss_peak_mb": 3878.05859375,
+    "rss_serving_mb": 3840.31640625
   },
   {
-    "rss_baseline_mb": 10.73828125,
-    "rss_serving_mb": 84.28515625,
-    "rss_peak_mb": 84.28515625,
-    "method_overhead_mb": 73.546875,
-    "experiment": "/data/experiments/git_repos/experiments/adaptivf/glove/20260328-023921-516249_ivfpq_seed0",
-    "method": "IVFPQ",
-    "dataset": "glove"
-  },
-  {
-    "rss_baseline_mb": 11.33203125,
-    "rss_serving_mb": 540.0234375,
-    "rss_peak_mb": 540.0234375,
-    "method_overhead_mb": 528.69140625,
-    "experiment": "/data/experiments/git_repos/experiments/adaptivf/glove/20260328-024010-092793_mlp_ivfpq_seed0",
-    "method": "MLP-IVFPQ",
-    "dataset": "glove"
-  },
-  {
-    "rss_baseline_mb": 10.734375,
-    "rss_serving_mb": 526.6328125,
-    "rss_peak_mb": 531.08984375,
-    "method_overhead_mb": 515.8984375,
-    "experiment": "/data/experiments/git_repos/experiments/adaptivf/glove/20260328-030916-794259_adaptivfppq_seed0",
+    "dataset": "deep1m",
+    "experiment": "../experiments/adaptivf/deep1m/20260331-202845-291456_adaptivfppq_seed0",
     "method": "AdaptIVF+PQ",
-    "dataset": "glove"
+    "method_overhead_mb": 3982.19921875,
+    "rss_baseline_mb": 10.7890625,
+    "rss_peak_mb": 4030.94140625,
+    "rss_serving_mb": 3992.98828125
   },
   {
-    "rss_baseline_mb": 10.71875,
-    "rss_serving_mb": 788.6015625,
-    "rss_peak_mb": 788.6015625,
-    "method_overhead_mb": 777.8828125,
-    "experiment": "/data/experiments/git_repos/experiments/adaptivf/sift/20260328-032421-909513_hnsw_seed0",
-    "method": "HNSW",
-    "dataset": "sift"
+    "dataset": "deep1m",
+    "experiment": "../experiments/adaptivf/deep1m/20260331-222538-827157__seed0",
+    "method": "AdaptIVF+PQ-m80",
+    "method_overhead_mb": 3982.1015625,
+    "rss_baseline_mb": 10.8359375,
+    "rss_peak_mb": 4030.74609375,
+    "rss_serving_mb": 3992.9375
   },
   {
-    "rss_baseline_mb": 10.72265625,
-    "rss_serving_mb": 536.5390625,
-    "rss_peak_mb": 536.5390625,
-    "method_overhead_mb": 525.81640625,
-    "experiment": "/data/experiments/git_repos/experiments/adaptivf/sift/20260328-032448-952352_ivf_seed0",
-    "method": "IVF",
-    "dataset": "sift"
+    "dataset": "deep1m",
+    "experiment": "../experiments/adaptivf/deep1m/20260331-215253-863869__seed0",
+    "method": "AdaptIVF-m80",
+    "method_overhead_mb": 3829.7421875,
+    "rss_baseline_mb": 10.7421875,
+    "rss_peak_mb": 3878.421875,
+    "rss_serving_mb": 3840.484375
   },
   {
-    "rss_baseline_mb": 10.73828125,
-    "rss_serving_mb": 551.14453125,
-    "rss_peak_mb": 551.37109375,
-    "method_overhead_mb": 540.40625,
-    "experiment": "/data/experiments/git_repos/experiments/adaptivf/sift/20260328-032533-312085_mlp_ivf_seed0",
-    "method": "MLP-IVF",
-    "dataset": "sift"
-  },
-  {
-    "rss_baseline_mb": 10.73828125,
-    "rss_serving_mb": 550.8203125,
-    "rss_peak_mb": 550.90234375,
-    "method_overhead_mb": 540.08203125,
-    "experiment": "/data/experiments/git_repos/experiments/adaptivf/sift/20260328-035234-902754_bliss_seed0",
+    "dataset": "deep1m",
+    "experiment": "../experiments/adaptivf/deep1m/20260331-125939-900052_bliss_seed0",
     "method": "BLISS",
-    "dataset": "sift"
+    "method_overhead_mb": 3877.5625,
+    "rss_baseline_mb": 10.76171875,
+    "rss_peak_mb": 3926.1796875,
+    "rss_serving_mb": 3888.32421875
+  },
+  {
+    "dataset": "deep1m",
+    "experiment": "../experiments/adaptivf/deep1m/20260331-112312-428949_hnsw_seed0",
+    "method": "HNSW",
+    "method_overhead_mb": 6281.3359375,
+    "rss_baseline_mb": 10.7890625,
+    "rss_peak_mb": 6292.125,
+    "rss_serving_mb": 6292.125
+  },
+  {
+    "dataset": "deep1m",
+    "experiment": "../experiments/adaptivf/deep1m/20260331-112707-730611_ivf_seed0",
+    "method": "IVF",
+    "method_overhead_mb": 3770.40234375,
+    "rss_baseline_mb": 10.79296875,
+    "rss_peak_mb": 3781.1953125,
+    "rss_serving_mb": 3781.1953125
+  },
+  {
+    "dataset": "deep1m",
+    "experiment": "../experiments/adaptivf/deep1m/20260331-181134-536598_ivfpq_seed0",
+    "method": "IVFPQ",
+    "method_overhead_mb": 325.328125,
+    "rss_baseline_mb": 10.796875,
+    "rss_peak_mb": 336.125,
+    "rss_serving_mb": 336.125
+  },
+  {
+    "dataset": "deep1m",
+    "experiment": "../experiments/adaptivf/deep1m/20260331-141944-714264_lira_seed0",
+    "method": "LIRA",
+    "method_overhead_mb": 4281.1484375,
+    "rss_baseline_mb": 10.80078125,
+    "rss_peak_mb": 4300.9765625,
+    "rss_serving_mb": 4291.94921875
+  },
+  {
+    "dataset": "deep1m",
+    "experiment": "../experiments/adaptivf/deep1m/20260331-113111-622887_mlp_ivf_seed0",
+    "method": "MLP-IVF",
+    "method_overhead_mb": 3878.4296875,
+    "rss_baseline_mb": 10.76171875,
+    "rss_peak_mb": 3927.27734375,
+    "rss_serving_mb": 3889.19140625
+  },
+  {
+    "dataset": "deep1m",
+    "experiment": "../experiments/adaptivf/deep1m/20260331-181551-003920_mlp_ivfpq_seed0",
+    "method": "MLP-IVFPQ",
+    "method_overhead_mb": 4031.01171875,
+    "rss_baseline_mb": 10.75,
+    "rss_peak_mb": 4079.5078125,
+    "rss_serving_mb": 4041.76171875
+  },
+  {
+    "dataset": "gist",
+    "experiment": "../experiments/adaptivf/gist/20260331-093304-559171_adaptivf_seed0",
+    "method": "AdaptIVF",
+    "method_overhead_mb": 3705.3828125,
+    "rss_baseline_mb": 10.7578125,
+    "rss_peak_mb": 3719.640625,
+    "rss_serving_mb": 3716.140625
+  },
+  {
+    "dataset": "gist",
+    "experiment": "../experiments/adaptivf/gist/20260331-103240-135786_adaptivfppq_seed0",
+    "method": "AdaptIVF+PQ",
+    "method_overhead_mb": 3721.58203125,
+    "rss_baseline_mb": 10.76171875,
+    "rss_peak_mb": 3736.046875,
+    "rss_serving_mb": 3732.34375
+  },
+  {
+    "dataset": "gist",
+    "experiment": "../experiments/adaptivf/gist/20260331-110348-799334__seed0",
+    "method": "AdaptIVF+PQ-m80",
+    "method_overhead_mb": 3721.640625,
+    "rss_baseline_mb": 10.31640625,
+    "rss_peak_mb": 3735.65625,
+    "rss_serving_mb": 3731.95703125
+  },
+  {
+    "dataset": "gist",
+    "experiment": "../experiments/adaptivf/gist/20260331-104922-003220__seed0",
+    "method": "AdaptIVF-m80",
+    "method_overhead_mb": 3704.83203125,
+    "rss_baseline_mb": 10.75390625,
+    "rss_peak_mb": 3719.11328125,
+    "rss_serving_mb": 3715.5859375
+  },
+  {
+    "dataset": "gist",
+    "experiment": "../experiments/adaptivf/gist/20260331-083445-850218_bliss_seed0",
+    "method": "BLISS",
+    "method_overhead_mb": 3714.00390625,
+    "rss_baseline_mb": 10.76171875,
+    "rss_peak_mb": 3724.86328125,
+    "rss_serving_mb": 3724.765625
+  },
+  {
+    "dataset": "gist",
+    "experiment": "../experiments/adaptivf/gist/20260331-075038-681683_hnsw_seed0",
+    "method": "HNSW",
+    "method_overhead_mb": 3951.859375,
+    "rss_baseline_mb": 10.828125,
+    "rss_peak_mb": 3962.6875,
+    "rss_serving_mb": 3962.6875
+  },
+  {
+    "dataset": "gist",
+    "experiment": "../experiments/adaptivf/gist/20260331-075219-519211_ivf_seed0",
+    "method": "IVF",
+    "method_overhead_mb": 3705.87109375,
+    "rss_baseline_mb": 10.80078125,
+    "rss_peak_mb": 3716.671875,
+    "rss_serving_mb": 3716.671875
+  },
+  {
+    "dataset": "gist",
+    "experiment": "../experiments/adaptivf/gist/20260331-094556-648318_ivfpq_seed0",
+    "method": "IVFPQ",
+    "method_overhead_mb": 73.8671875,
+    "rss_baseline_mb": 10.80078125,
+    "rss_peak_mb": 84.66796875,
+    "rss_serving_mb": 84.66796875
+  },
+  {
+    "dataset": "gist",
+    "experiment": "../experiments/adaptivf/gist/20260331-091232-517476_lira_seed0",
+    "method": "LIRA",
+    "method_overhead_mb": 4224.87109375,
+    "rss_baseline_mb": 10.82421875,
+    "rss_peak_mb": 4306.625,
+    "rss_serving_mb": 4235.6953125
+  },
+  {
+    "dataset": "gist",
+    "experiment": "../experiments/adaptivf/gist/20260331-075434-495301_mlp_ivf_seed0",
+    "method": "MLP-IVF",
+    "method_overhead_mb": 3713.9453125,
+    "rss_baseline_mb": 10.76171875,
+    "rss_peak_mb": 3724.70703125,
+    "rss_serving_mb": 3724.70703125
+  },
+  {
+    "dataset": "gist",
+    "experiment": "../experiments/adaptivf/gist/20260331-094833-341791_mlp_ivfpq_seed0",
+    "method": "MLP-IVFPQ",
+    "method_overhead_mb": 3733.0703125,
+    "rss_baseline_mb": 10.7890625,
+    "rss_peak_mb": 3743.859375,
+    "rss_serving_mb": 3743.859375
+  },
+  {
+    "dataset": "glove",
+    "experiment": "../experiments/adaptivf/glove/20260331-025710-934126_adaptivf_seed0",
+    "method": "AdaptIVF",
+    "method_overhead_mb": 498.1875,
+    "rss_baseline_mb": 10.7578125,
+    "rss_peak_mb": 513.1484375,
+    "rss_serving_mb": 508.9453125
+  },
+  {
+    "dataset": "glove",
+    "experiment": "../experiments/adaptivf/glove/20260331-033314-464850_adaptivfppq_seed0",
+    "method": "AdaptIVF+PQ",
+    "method_overhead_mb": 516.8125,
+    "rss_baseline_mb": 10.7421875,
+    "rss_peak_mb": 531.1875,
+    "rss_serving_mb": 527.5546875
+  },
+  {
+    "dataset": "glove",
+    "experiment": "../experiments/adaptivf/glove/20260331-035157-093010__seed0",
+    "method": "AdaptIVF+PQ-m80",
+    "method_overhead_mb": 516.40234375,
+    "rss_baseline_mb": 10.7890625,
+    "rss_peak_mb": 531.5625,
+    "rss_serving_mb": 527.19140625
+  },
+  {
+    "dataset": "glove",
+    "experiment": "../experiments/adaptivf/glove/20260331-034512-941849__seed0",
+    "method": "AdaptIVF-m80",
+    "method_overhead_mb": 497.99609375,
+    "rss_baseline_mb": 10.76171875,
+    "rss_peak_mb": 512.921875,
+    "rss_serving_mb": 508.7578125
+  },
+  {
+    "dataset": "glove",
+    "experiment": "../experiments/adaptivf/glove/20260330-195853-550361_bliss_seed0",
+    "method": "BLISS",
+    "method_overhead_mb": 507.56640625,
+    "rss_baseline_mb": 10.7578125,
+    "rss_peak_mb": 518.39453125,
+    "rss_serving_mb": 518.32421875
+  },
+  {
+    "dataset": "glove",
+    "experiment": "../experiments/adaptivf/glove/20260330-192142-758849_hnsw_seed0",
+    "method": "HNSW",
+    "method_overhead_mb": 788.94140625,
+    "rss_baseline_mb": 10.8515625,
+    "rss_peak_mb": 799.79296875,
+    "rss_serving_mb": 799.79296875
+  },
+  {
+    "dataset": "glove",
+    "experiment": "../experiments/adaptivf/glove/20260330-192226-314100_ivf_seed0",
+    "method": "IVF",
+    "method_overhead_mb": 491.31640625,
+    "rss_baseline_mb": 10.796875,
+    "rss_peak_mb": 502.11328125,
+    "rss_serving_mb": 502.11328125
+  },
+  {
+    "dataset": "glove",
+    "experiment": "../experiments/adaptivf/glove/20260331-030356-222184_ivfpq_seed0",
+    "method": "IVFPQ",
+    "method_overhead_mb": 73.94921875,
+    "rss_baseline_mb": 10.82421875,
+    "rss_peak_mb": 84.7734375,
+    "rss_serving_mb": 84.7734375
+  },
+  {
+    "dataset": "glove",
+    "experiment": "../experiments/adaptivf/glove/20260330-203549-096659_lira_seed0",
+    "method": "LIRA",
+    "method_overhead_mb": 989.4140625,
+    "rss_baseline_mb": 10.796875,
+    "rss_peak_mb": 1009.7109375,
+    "rss_serving_mb": 1000.2109375
+  },
+  {
+    "dataset": "glove",
+    "experiment": "../experiments/adaptivf/glove/20260330-192301-709533_mlp_ivf_seed0",
+    "method": "MLP-IVF",
+    "method_overhead_mb": 507.75390625,
+    "rss_baseline_mb": 10.76171875,
+    "rss_peak_mb": 518.52734375,
+    "rss_serving_mb": 518.515625
+  },
+  {
+    "dataset": "glove",
+    "experiment": "../experiments/adaptivf/glove/20260331-030420-722519_mlp_ivfpq_seed0",
+    "method": "MLP-IVFPQ",
+    "method_overhead_mb": 530.30078125,
+    "rss_baseline_mb": 10.7890625,
+    "rss_peak_mb": 541.08984375,
+    "rss_serving_mb": 541.08984375
+  },
+  {
+    "dataset": "sift",
+    "experiment": "../experiments/adaptivf/sift/20260331-055628-714657_adaptivf_seed0",
+    "method": "AdaptIVF",
+    "method_overhead_mb": 531.390625,
+    "rss_baseline_mb": 10.7578125,
+    "rss_peak_mb": 545.3203125,
+    "rss_serving_mb": 542.1484375
+  },
+  {
+    "dataset": "sift",
+    "experiment": "../experiments/adaptivf/sift/20260331-064829-034780_adaptivfppq_seed0",
+    "method": "AdaptIVF+PQ",
+    "method_overhead_mb": 546.8984375,
+    "rss_baseline_mb": 10.76171875,
+    "rss_peak_mb": 561.421875,
+    "rss_serving_mb": 557.66015625
+  },
+  {
+    "dataset": "sift",
+    "experiment": "../experiments/adaptivf/sift/20260331-072254-583581__seed0",
+    "method": "AdaptIVF+PQ-m80",
+    "method_overhead_mb": 546.97265625,
+    "rss_baseline_mb": 10.76171875,
+    "rss_peak_mb": 561.1796875,
+    "rss_serving_mb": 557.734375
+  },
+  {
+    "dataset": "sift",
+    "experiment": "../experiments/adaptivf/sift/20260331-071258-234483__seed0",
+    "method": "AdaptIVF-m80",
+    "method_overhead_mb": 531.453125,
+    "rss_baseline_mb": 10.83984375,
+    "rss_peak_mb": 545.66015625,
+    "rss_serving_mb": 542.29296875
+  },
+  {
+    "dataset": "sift",
+    "experiment": "../experiments/adaptivf/sift/20260331-043343-354931_bliss_seed0",
+    "method": "BLISS",
+    "method_overhead_mb": 539.9921875,
+    "rss_baseline_mb": 10.7890625,
+    "rss_peak_mb": 550.94140625,
+    "rss_serving_mb": 550.78125
+  },
+  {
+    "dataset": "sift",
+    "experiment": "../experiments/adaptivf/sift/20260331-040530-533367_hnsw_seed0",
+    "method": "HNSW",
+    "method_overhead_mb": 777.8359375,
+    "rss_baseline_mb": 10.80078125,
+    "rss_peak_mb": 788.63671875,
+    "rss_serving_mb": 788.63671875
+  },
+  {
+    "dataset": "sift",
+    "experiment": "../experiments/adaptivf/sift/20260331-040557-528874_ivf_seed0",
+    "method": "IVF",
+    "method_overhead_mb": 526.8515625,
+    "rss_baseline_mb": 10.79296875,
+    "rss_peak_mb": 537.64453125,
+    "rss_serving_mb": 537.64453125
+  },
+  {
+    "dataset": "sift",
+    "experiment": "../experiments/adaptivf/sift/20260331-060556-855042_ivfpq_seed0",
+    "method": "IVFPQ",
+    "method_overhead_mb": 69.83984375,
+    "rss_baseline_mb": 10.7890625,
+    "rss_peak_mb": 80.62890625,
+    "rss_serving_mb": 80.62890625
+  },
+  {
+    "dataset": "sift",
+    "experiment": "../experiments/adaptivf/sift/20260331-051341-723193_lira_seed0",
+    "method": "LIRA",
+    "method_overhead_mb": 1020.9296875,
+    "rss_baseline_mb": 10.796875,
+    "rss_peak_mb": 1035.9921875,
+    "rss_serving_mb": 1031.7265625
+  },
+  {
+    "dataset": "sift",
+    "experiment": "../experiments/adaptivf/sift/20260331-040622-770962_mlp_ivf_seed0",
+    "method": "MLP-IVF",
+    "method_overhead_mb": 539.9296875,
+    "rss_baseline_mb": 10.7578125,
+    "rss_peak_mb": 550.84375,
+    "rss_serving_mb": 550.6875
+  },
+  {
+    "dataset": "sift",
+    "experiment": "../experiments/adaptivf/sift/20260331-060623-151361_mlp_ivfpq_seed0",
+    "method": "MLP-IVFPQ",
+    "method_overhead_mb": 559.0,
+    "rss_baseline_mb": 10.7890625,
+    "rss_peak_mb": 569.7890625,
+    "rss_serving_mb": 569.7890625
   }
 ]

@@ -1,134 +1,125 @@
 # Next Directions
 
-This note narrows follow-up work to the three directions most justified by our
-completed large-scale research and the current streamlined benchmark reruns.
-The main pattern is already stable, even though the final `deep1m`
-competitiveness block is still running:
+This note reflects the finished paper run, not the earlier partial reruns. The
+main pattern is now clear:
 
-- AdaptIVF consistently improves over BLISS- and MLP-IVF-style learned routing
-  on our four benchmark datasets while using materially lower learned/index
-  overhead.
-- The strongest remaining weakness is not recall, but serving efficiency:
-  runtime and candidate expansion still lag far behind FAISS baselines.
-- The uncertainty mechanisms are clearly useful, but a single fixed setting is
-  not optimal across easy cosine workloads and harder high-dimensional L2
-  workloads.
+- the compact single-backbone AdaptIVF design is validated
+- the low-cap default controller is not yet the strongest instantiation
+- the main remaining gap is controller calibration and serving efficiency, not
+  training cost
 
-Across our broader four-dataset research, default AdaptIVF reaches Recall@10 of
-roughly `0.908` on Glove, `0.956` on SIFT, `0.948` on GIST, and `0.954` on
-Deep1M. The more aggressive A4 variant raises that ceiling further to roughly
-`0.928`, `0.969`, `0.966`, and `0.967`, but with substantially higher candidate
-cost. Current streamlined reruns on Glove, SIFT, and GIST preserve the same
-ranking pattern while keeping learned/index overhead low (`19.3 MB` on Glove,
-`15.7 MB` on SIFT, and `17.8 MB` on GIST for AdaptIVF). At the same time, GIST
-also makes the current bottleneck unmistakable: very strong recall can still
-arrive with extremely large candidate sets and weak QPS.
+## 1. Calibrated Probe Control
 
-## 1. Throughput-First Serving Optimization
+This is the highest-value follow-up.
 
-This is the highest-value direction.
+The strongest AdaptIVF results in the finished run come from the `m80`
+competitiveness variants, not the default `m10` controller:
 
-Our research already shows that the method has enough recall headroom to be
-interesting. The main systems gap is that no-PQ AdaptIVF still operates far
-below FAISS baselines in QPS, especially on the harder datasets. On the current
-streamlined reruns, AdaptIVF achieves strong recall on Glove and SIFT but still
-trails HNSW and IVF by orders of magnitude in throughput. The completed GIST
-rerun makes the same point even more sharply: AdaptIVF reaches the best
-finished recall, but only with a very large candidate budget and single-digit
-QPS. In other words, the next bottleneck is not finding good buckets; it is
-serving those buckets efficiently.
+- `GloVe`: `0.736 -> 0.913`
+- `SIFT`: `0.825 -> 0.956`
+- `GIST`: `0.568 -> 0.921`
+- `Deep1M`: `0.822 -> 0.954`
 
-The most promising subdirections are:
+That is too large a gap to ignore. It means the current entropy-to-budget
+mapping is not yet a good default controller. The next step is not another
+index structure; it is a better probe-allocation policy on the same backbone.
 
-- **Batch-adaptive probing.** Keep entropy-based decisions, but group queries
-  into a small number of probe-depth bands so the actual scan kernels operate at
-  fixed depths per batch rather than fully per-query control flow.
-- **Faster reranking and candidate handling.** Focus on candidate deduplication,
-  tighter list layouts, fewer temporary allocations, and better SIMD/BLAS paths
-  for exact scoring.
-- **Bucket-level pruning before full scan.** Use cheap bucket summaries,
-  centroid checks, or learned admission rules to cut candidate expansion before
-  exact reranking starts.
-- **PQ kernel quality, not just PQ availability.** The compressed variant is
-  already useful; the next gain is to make ADC and reranking fast enough that PQ
-  buys real end-to-end throughput rather than only smaller artifacts.
+Priority subdirections:
 
-The success criterion here is straightforward: preserve the current recall
-advantage over learned IVF baselines while improving QPS by a meaningful
-constant factor at matched operating points.
+- learn or validate `m_base`, `m_max`, and `lambda` per dataset rather than
+  fixing them globally
+- treat entropy as a calibration signal, not only as a monotonic budget knob
+- explore piecewise or banded probe schedules instead of the current single
+  exponential mapping
+- evaluate whether the controller should optimize for recall, QPS, or a mixed
+  objective on a held-out calibration set
 
-## 2. Self-Calibrating Uncertainty Control
+## 2. Throughput-First Serving Optimization
 
-The current uncertainty mechanisms work, but our research says they should be
-calibrated rather than treated as one global fixed recipe.
+The finished run confirms that recall headroom exists, but QPS remains the main
+systems bottleneck once the probe cap is raised.
 
-Two findings make this clear. First, the more aggressive A4 assignment/probing
-policy helps substantially on the harder datasets in our broader runs, but it
-is not uniformly worth its extra candidate cost on easier workloads. Second, PQ
-loss is strongly dataset-dependent: on the current streamlined reruns it is
-large on Glove (`0.914 -> 0.810`), small on SIFT (`0.957 -> 0.953`), and harsh
-again on GIST (`0.924 -> 0.656`). That is a strong signal that one global
-uncertainty policy is leaving performance on the table.
+Examples:
 
-The most promising subdirections are:
+- `AdaptIVF-m80` is strong on recall, but still far below `IVF` / `IVFPQ` in
+  raw throughput
+- `AdaptIVF+PQ-m80` preserves much of the recall gain on `SIFT` and `Deep1M`,
+  but its QPS remains low
 
-- **Dataset-calibrated probe control.** Learn or validate `lambda`, `m_base`,
-  `m_max`, and clipping bounds from a small held-out set instead of fixing them
-  globally.
-- **Adaptive assignment budget.** Choose between the default assignment window
-  and a more aggressive setting such as A4 based on validation difficulty,
-  rather than hard-coding one variant for every dataset.
-- **Entropy-gated compression.** Use uncertainty to decide when exact reranking
-  is worth paying for and when PQ is acceptable, instead of applying one
-  compression mode uniformly to all queries.
-- **Entropy as an operational signal.** Use routing entropy not only to set
-  probe budgets, but also to trigger fallback policies, bucket pruning, and
-  distribution-shift monitoring in production environments where recall is not
-  observable online.
+The best next work is therefore on the serving path, not on retraining another
+router architecture.
 
-The goal is not to make the method more complex for its own sake. The goal is
-to preserve the single-backbone design while making its uncertainty controls
-respond to dataset difficulty and query difficulty more intelligently.
+Priority subdirections:
 
-## 3. Production-Grade Resource Semantics and Maintenance
+- faster candidate deduplication and reranking
+- batched probe-depth bands instead of fully per-query branching
+- cheaper shortlist admission before exact scoring
+- faster ADC and shortlist handling for the PQ path
 
-The next major improvement is to make the operational story as strong as the
-recall story.
+The success criterion is simple: preserve the `m80` recall regime while
+improving QPS by a meaningful constant factor.
 
-Our current research already shows that AdaptIVF has a compelling learned/index
-overhead advantage, but it also reveals two practical questions that will keep
-coming up: how to report memory fairly across method families, and how the
-index should evolve when data changes over time. Those are now more important
-than inventing another routing variant.
+## 3. Controller-Aware Compression
 
-The most important subdirections are:
+The PQ story is now clearly dataset-dependent.
 
-- **Dual storage reporting.** Keep the current realized-layout overhead metric,
-  but pair it with a companion structure-only view where appropriate so storage
-  comparisons are explicit rather than implicit.
-- **Unified serving RAM measurement.** Standardize on one isolated post-load or
-  peak-RSS definition across all methods, including LIRA, instead of mixing
-  pre-load and post-load measurements.
-- **Lightweight insert/delete path.** Exploit the single-backbone layout for
-  incremental maintenance, with periodic refresh or compaction rather than full
-  retraining as the default response to modest data drift.
+- `SIFT`: high-cap PQ remains excellent
+- `Deep1M`: high-cap PQ remains strong
+- `GloVe`: PQ is acceptable but not neutral
+- `GIST`: PQ is still the hardest case
 
-This direction matters because the paper's long-term value is not just that
-AdaptIVF retrieves well, but that it offers a simpler and more controllable
-systems design than heavier learned partitioning pipelines. The strongest
-production story is not “highest recall at any cost,” but “strong recall with a
-compact single-backbone design and an online uncertainty signal that remains
-available even when recall cannot be measured.”
+This suggests compression should be coupled to uncertainty and dataset
+difficulty rather than treated as one global mode.
 
-## What Not to Prioritize Next
+Priority subdirections:
 
-The evidence does **not** currently justify spending the next cycle on:
+- entropy-gated exact reranking vs PQ reranking
+- dataset-specific PQ settings rather than a single uniform compression recipe
+- compressed shortlist kernels that reduce QPS loss, not just index size
 
-- adding more repetitions or moving back toward multi-index designs
-- expanding the baseline list further before the current run is complete
-- introducing new architectural branches before the serving path is faster and
-  the uncertainty controls are better calibrated
+## 4. Stronger Default Variant Selection
 
-The method already has enough novelty and enough empirical support. The next
-step is to make the strongest version of the existing idea faster, more
-self-tuning, and easier to reason about operationally.
+The ablation results show that `AdaptIVF-Static` beats default `AdaptIVF` on
+most datasets at the current low-cap setting, while `AdaptIVF-A4` does not fix
+that gap consistently. So the repository now has three distinct roles:
+
+- `Static`: strong conservative baseline on the same backbone
+- `m10`: current adaptive default, but under-calibrated
+- `m80`: strongest recall-oriented competitiveness setting
+
+The next development cycle should make this relationship explicit and then
+collapse it where possible:
+
+- either improve the adaptive default until it matches the stronger variants
+- or expose a principled “compact / balanced / recall-oriented” controller menu
+
+## 5. Memory and Resource Semantics
+
+The repository now exports both query RAM and isolated serving RAM, but the
+reporting surface can still be improved.
+
+Priority subdirections:
+
+- keep `query_mem_delta_mb` and `rss_serving_mb` clearly separated in the paper
+  and code
+- preserve `index_overhead_mb` as the primary compactness metric, but continue
+  reporting serving footprint and RAM separately
+- document the operational meaning of each systems metric directly in the
+  export bundle
+
+This matters because the long-term value of AdaptIVF is not just recall. It is
+the claim that a compact learned IVF backbone can be easier to train, easier to
+store, and easier to reason about operationally than heavier learned partition
+systems.
+
+## What Not To Prioritize Next
+
+The finished run does **not** justify spending the next cycle on:
+
+- more repetitions or moving back toward multi-index designs
+- expanding the baseline list further
+- redesigning the router architecture before the current controller is
+  calibrated and the serving path is faster
+
+The method already has enough novelty. The highest-value next step is to make
+the strongest version of the existing idea more self-calibrating and faster.

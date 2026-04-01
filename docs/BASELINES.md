@@ -1,70 +1,111 @@
 # Baseline Provenance
 
-This repository keeps only the baseline surface needed for the AdaptIVF benchmark suite.
+This repository keeps only the baseline surface required for the finished
+AdaptIVF benchmark suite and paper exports.
 
-## Published Packages
+## Competitiveness Baselines
 
-Prefer published packages for stable, generic functionality:
+The finalized competitiveness study evaluates four baseline families.
 
-- `faiss-cpu`: IVF, IVFPQ, HNSW, centroid search, PQ scan
-- `numpy`, `h5py`: dataset IO and dense vector handling
-- `scikit-learn`: small auxiliary KMeans or statistics where FAISS is not required
-- `matplotlib`, `pandas`: tables and figures
+### Classical ANN Baselines
+
+- `HNSW`: high-recall graph baseline and serving-speed anchor
+- `IVF`: static coarse quantization baseline
+- `IVFPQ`: compressed FAISS baseline and QPS anchor
+
+These methods provide the non-learned reference points for recall, throughput,
+and storage.
+
+### Learned Partitioning / Learned Routing Baselines
+
+- `BLISS`: learned partitioning with repeated hash-seeded partitions
+- `BLISS-KMeans`: geometry-aware BLISS variant used in the initialization study
+- `MLP-IVF`: BLISS-style learned routing with IVF initialization
+- `MLP-IVFPQ`: compressed variant of `MLP-IVF`
+
+These methods isolate the effect of initialization and repeated learned
+partitioning relative to the single-backbone AdaptIVF family.
+
+### Adaptive Learned Baseline
+
+- `LIRA`: learned partition selection with local inner indexes and thresholded
+  probing
+
+In the finished run, `LIRA` remains the compute-efficient learned baseline, but
+also the structurally heaviest one.
+
+### AdaptIVF Family
+
+- `AdaptIVF`
+- `AdaptIVF+PQ`
+- `AdaptIVF-m80`
+- `AdaptIVF+PQ-m80`
+- ablation-only internal baselines:
+  - `AdaptIVF-Static`
+  - `AdaptIVF-A4`
+  - `AdaptIVF-Static+PQ`
+  - `AdaptIVF-A4+PQ`
+
+Only `AdaptIVF` and `AdaptIVF+PQ` are public API methods. The `m80`, `Static`,
+and `A4` variants are benchmark-only analysis settings.
+
+## Implementation Strategy
+
+Prefer published packages for generic primitives:
+
+- `faiss-cpu` for IVF, IVFPQ, HNSW, centroid search, and PQ scanning
+- `numpy` and `h5py` for dataset IO and dense-vector handling
+- `scikit-learn`, `matplotlib`, and `pandas` for auxiliary statistics and
+  export generation
+
+Use thin local ports only where the published method does not map cleanly to a
+single stable package interface.
 
 ## Local Ports
-
-Two baselines still need narrow local ports because their published methods do not map cleanly to a single package API.
 
 ### BLISS
 
 Reference implementation during porting: [`../BLISS_1`](../BLISS_1)
 
-Keep only:
+Retained:
 
 - seeded / KMeans initialization used by the benchmark suite
 - repeated router training
-- final materialization
-- query aggregation path
+- iterative reassignment
+- final materialization and query aggregation
 
-Drop:
+Dropped:
 
-- unrelated XML / broader benchmark machinery
-- repo-specific config indirection
+- XML / repository-specific benchmark machinery
+- unrelated configuration layers
 
 ### LIRA
 
 Reference implementation during porting: [`../LIRA-ANN-search`](../LIRA-ANN-search)
 
-Keep only:
+Retained:
 
-- small-scale LIRA path used in the comparison suite
 - trained probing model
 - adaptive multi-assignment
 - thresholded query probing
-- partition-local index wrapper
+- partition-local inner-index wrapper
 
-Drop:
+Dropped:
 
-- unrelated large-scale scripts unless they are needed later
-- repo-specific dataset layout
+- unrelated large-scale scripts
+- original repository-specific dataset layout
 
-## AdaptIVF
+## Interpretation After The Finished Run
 
-Reference implementation during porting: current AdaptIVF development branch of [`../lindex`](../lindex)
+The final run clarifies the role of each baseline:
 
-Keep only:
-
-- IVF backbone setup
-- router training
-- uncertainty-aware placement
-- entropy-adaptive query probing
-- no-PQ and +PQ serving paths
-
-## Result
-
-The new repository should use:
-
-- published packages for generic ANN primitives
-- thin local ports only for benchmark-critical baseline behavior
-- no runtime dependence on sibling research repositories
-- no generic research-framework abstraction above those components
+- `HNSW` and `IVFPQ` are the throughput anchors.
+- `BLISS` remains strong on `GIST` and `Deep1M`, especially when the coarse
+  geometry is weak.
+- `MLP-IVF` is the strongest geometry-aware learned-routing baseline on
+  `SIFT`.
+- `LIRA` is the strongest learned compute-efficiency baseline, but only with a
+  large training and storage cost.
+- the strongest AdaptIVF results currently come from the `m80` analysis
+  variants, which expose the upside of the same compact single-backbone design
+  under a less restrictive probe cap.

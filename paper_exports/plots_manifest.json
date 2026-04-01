@@ -1,0 +1,25 @@
+{
+  "plots": [
+    "init_recall_vs_m_facets",
+    "init_recall_vs_avg_computations_facets",
+    "main_recall_vs_avg_computations_facets",
+    "main_recall_vs_qps_facets",
+    "main_qps_vs_index_overhead_facets",
+    "main_recall_compute_storage_triangle_facets",
+    "main_recall_compute_storage_triangle_aggregate",
+    "main_recall_vs_index_overhead_facets",
+    "main_serving_ram_vs_index_overhead_facets",
+    "ablation_recall_vs_avg_computations_facets",
+    "ablation_recall_vs_index_overhead_facets",
+    "main_training_time_bars",
+    "appendix_serving_footprint_bars",
+    "appendix_query_ram_vs_index_overhead_facets",
+    "appendix_query_ram_bars",
+    "appendix_serving_ram_vs_index_overhead_facets",
+    "appendix_serving_ram_bars",
+    "appendix_computation_range_bars",
+    "appendix_qps_bars",
+    "appendix_ablation_qps_bars",
+    "appendix_ablation_training_time_bars"
+  ]
+}

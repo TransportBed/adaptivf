@@ -9,7 +9,7 @@ This repository serves two purposes:
 1. run the benchmark pipeline, tables, and plots from a compact command surface;
 2. provide an installable Python interface for `AdaptIVF` and `AdaptIVF+PQ`.
 
-The benchmark surface in this repository covers the datasets `glove`, `sift`, `gist`, and `deep1m`, with generated `glove10k` data used only for smoke testing. The implemented methods are `BLISS`, `BLISS-KMeans`, `MLP-IVF`, `IVF`, `IVFPQ`, `MLP-IVFPQ`, `HNSW`, `LIRA`, `AdaptIVF`, and `AdaptIVF+PQ`. The evaluation pipeline is organized into three study groups: initialization, main competitiveness, and AdaptIVF ablations. Generated exports are written to `paper_exports/`.
+The benchmark surface in this repository covers the datasets `glove`, `sift`, `gist`, and `deep1m`, with generated `glove10k` data used only for smoke testing. The implemented methods are `BLISS`, `BLISS-KMeans`, `MLP-IVF`, `IVF`, `IVFPQ`, `MLP-IVFPQ`, `HNSW`, `LIRA`, `AdaptIVF`, and `AdaptIVF+PQ`, plus the competitiveness-analysis variants `AdaptIVF-m80` and `AdaptIVF+PQ-m80`. The evaluation pipeline is organized into three study groups: initialization, main competitiveness, and AdaptIVF ablations. Generated exports are written to `paper_exports/`; the canonical artifact layout, rebuild steps, and exported query-RAM / serving-RAM figures are documented in [`paper_exports/README.md`](paper_exports/README.md).
 
 ## Command Surface
 
@@ -82,7 +82,6 @@ adaptivf/
     download_datasets.sh          # dataset download & generation
     smoke_glove10k.sh             # lightweight smoke test
     measure_serving_ram.py        # cold-load RAM measurement
-    rerun_adaptivf_patch.sh       # ephemeral m_max=10 patch rerun
     test.sh                       # test runner
   src/
     adaptivf.py                   # public API (AdaptIVFConfig, make_adaptivf)
@@ -104,7 +103,8 @@ adaptivf/
     collect.py                    # result collection & merging
     plots.py / tables.py          # figure & table generation
   tests/                          # pytest suite
-  paper_exports/                  # generated output (git-tracked)
+  paper_exports/                  # canonical generated export bundle
+    README.md                     # artifact index & reproducibility notes
 ```
 
 ## Dependency Strategy
@@ -144,7 +144,7 @@ Default run surface:
 bash scripts/run_paper.sh
 ```
 
-This is the intended default command: all benchmark datasets, all benchmark methods, and the AdaptIVF ablation study, sequential in tmux, with cleanup of prior generated artifacts. The run regenerates `paper_exports/` at the end.
+This is the intended default command: all benchmark datasets, all benchmark methods, and the AdaptIVF ablation study, sequential in tmux, with cleanup of prior generated artifacts. The run regenerates `paper_exports/` at the end, including normalized study summaries, isolated query-RAM and serving-RAM measurements, plots, tables, and the export-bundle README.
 
 For repeated seeds:
 
@@ -177,6 +177,8 @@ bash scripts/run_paper.sh --ablations-only
 ```
 
 Only `AdaptIVF` and `AdaptIVF+PQ` are first-class AdaptIVF methods in this repository. The `Static` and `A4` variants are kept only as ablation-only internal baselines and are not part of the public method surface or packaged API.
+
+For the finished paper artifact bundle and exact post-run export contents, see [`paper_exports/README.md`](paper_exports/README.md).
 
 ## Measurement Contract
 
@@ -233,4 +235,4 @@ The packaged API is intentionally thin and user-facing. For lower-level control,
 - all artifact generation should be dataset-scoped and incremental
 - the default size metric should measure index overhead, not shared vector payload
 
-Baseline provenance is documented in [docs/BASELINES.md](docs/BASELINES.md). The shared measurement contract is in [docs/MEASUREMENTS.md](docs/MEASUREMENTS.md).
+Baseline provenance is documented in [docs/BASELINES.md](docs/BASELINES.md). The shared measurement contract is in [docs/MEASUREMENTS.md](docs/MEASUREMENTS.md). Final run findings and follow-up priorities are summarized in [docs/FINDINGS.md](docs/FINDINGS.md) and [docs/NEXT_DIRECTIONS.md](docs/NEXT_DIRECTIONS.md).

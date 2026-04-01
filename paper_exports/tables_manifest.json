@@ -1,0 +1,8 @@
+{
+  "tables": {
+    "ablation_summary_table": "tables/ablation_summary_table.csv",
+    "competitiveness_summary_table": "tables/competitiveness_summary_table.csv",
+    "datasets_table": "tables/datasets_table.csv",
+    "initialization_summary_table": "tables/initialization_summary_table.csv"
+  }
+}

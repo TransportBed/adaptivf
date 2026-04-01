@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
 
 import pandas as pd
@@ -29,6 +30,10 @@ def _aggregate(df: pd.DataFrame, group_cols: list[str]) -> pd.DataFrame:
             "index_overhead_mb",
             "serving_footprint_mb",
             "query_mem_delta_mb",
+            "rss_baseline_mb",
+            "rss_serving_mb",
+            "rss_peak_mb",
+            "method_overhead_mb",
             "train_s",
             "threshold",
             "nprobe",
@@ -44,6 +49,10 @@ def _aggregate(df: pd.DataFrame, group_cols: list[str]) -> pd.DataFrame:
 def _write_table(path: Path, df: pd.DataFrame) -> None:
     rows = df.to_dict(orient="records") if not df.empty else []
     write_csv(path, rows)
+
+
+def _out_relative_path(path: Path, *, out_root: Path) -> str:
+    return os.path.relpath(path.resolve(), out_root.resolve()).replace(os.sep, "/")
 
 
 def main() -> None:
@@ -85,10 +94,10 @@ def main() -> None:
 
     payload = {
         "tables": {
-            "datasets_table": str(table_dir / "datasets_table.csv"),
-            "initialization_summary_table": str(table_dir / "initialization_summary_table.csv"),
-            "competitiveness_summary_table": str(table_dir / "competitiveness_summary_table.csv"),
-            "ablation_summary_table": str(table_dir / "ablation_summary_table.csv"),
+            "datasets_table": _out_relative_path(table_dir / "datasets_table.csv", out_root=out_root),
+            "initialization_summary_table": _out_relative_path(table_dir / "initialization_summary_table.csv", out_root=out_root),
+            "competitiveness_summary_table": _out_relative_path(table_dir / "competitiveness_summary_table.csv", out_root=out_root),
+            "ablation_summary_table": _out_relative_path(table_dir / "ablation_summary_table.csv", out_root=out_root),
         }
     }
     write_json(out_root / "tables_manifest.json", payload)

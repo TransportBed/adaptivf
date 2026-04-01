@@ -35,7 +35,6 @@ logs/
 experiments/
 cache/
 .numba_cache/
-paper_exports_bak*/
 
 # Binary data formats
 *.npy
@@ -82,6 +81,7 @@ paper_exports_bak*/
 # Keep paper_exports/ tracked (generated but version-controlled for review)
 !paper_exports/
 !paper_exports/**
+paper_exports/_debug/
 
 # ============================================================================
 # IDE & OS

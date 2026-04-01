@@ -18,12 +18,13 @@ Datasets are written to `../data/` relative to the repository root (configurable
 bash scripts/run_paper.sh
 ```
 
-Runs the complete evaluation pipeline in tmux:
+Runs the complete evaluation pipeline in tmux. By default it now starts from a
+clean canonical export tree and regenerates `paper_exports/` in place.
 
 1. **Initialization study** — routing efficiency across probe depths (BLISS, BLISS-KMeans, MLP-IVF)
-2. **Competitiveness study** — all 9 methods × all datasets (HNSW, IVF, IVFPQ, MLP-IVF, BLISS, MLP-IVFPQ, LIRA, AdaptIVF, AdaptIVF+PQ, plus m_max=80 analysis variants)
+2. **Competitiveness study** — the 9 core comparison methods across all datasets, plus the `m_max=80` AdaptIVF analysis variants
 3. **Ablation study** — AdaptIVF variants (Static, A4, with/without PQ)
-4. **Plan** — regenerate tables and plots in `paper_exports/`
+4. **Finalize exports** — rebuild normalized summaries, measure serving RAM for canonical competitiveness experiments, regenerate tables/plots including the RAM figures, and write the export-bundle README / appendix scaffold in `paper_exports/`
 
 ### Flags
 
@@ -44,7 +45,7 @@ Runs the complete evaluation pipeline in tmux:
 |---|---|---|
 | `DATA_ROOT` | `../data` | Directory containing dataset HDF5 files |
 | `EXPERIMENTS_ROOT` | `../experiments/adaptivf` | Directory for experiment artifacts |
-| `OUT_ROOT` | `paper_exports` | Output directory for tables, plots, and summaries |
+| `OUT_ROOT` | `paper_exports` | Canonical output directory for tables, plots, and summaries |
 | `PYTHON_BIN` | `python3` | Python interpreter to use |
 
 ## Smoke Test
@@ -67,13 +68,35 @@ Measures cold-load serving RSS for every completed experiment. Spawns an isolate
 
 Optional `--output path.json` writes a combined JSON array to disk.
 
-## Patch Rerun (Ephemeral)
+The full paper pipeline now invokes this measurement during its export-finalize
+phase and writes canonical filtered outputs to `paper_exports/serving_ram.json`
+and `paper_exports/serving_ram.csv`. The plotting step consumes these
+measurements to emit the serving-RAM appendix plots alongside the query-RAM
+plots derived from `query_mem_delta_mb`.
+
+## Export-Only Rebuild
+
+If the experiments have already completed and only the canonical export bundle
+needs to be refreshed:
 
 ```bash
-bash scripts/rerun_adaptivf_patch.sh
+PYTHONPATH=src python -m collect --out-root paper_exports --experiments-root ../experiments/adaptivf --data-root ../data
+PYTHONPATH=src python -m tables --out-root paper_exports
+PYTHONPATH=src python -m plots --out-root paper_exports
+PYTHONPATH=src python -m export_bundle --out-root paper_exports
 ```
 
-Reruns only AdaptIVF and AdaptIVF+PQ competitiveness methods with the current `m_max=10` default. Results are written to `paper_exports/patch_m10/` to avoid overwriting existing m_max=80 results. Safe to delete after use.
+## Targeted AdaptIVF Rerun
+
+```bash
+bash scripts/run_paper.sh --competitiveness-only --datasets glove,sift,gist,deep1m --m-max 10
+bash scripts/run_paper.sh --ablations-only --datasets glove,sift,gist,deep1m --m-max 10
+```
+
+Reruns the AdaptIVF family with an explicit `m_max` override through the main
+paper pipeline instead of a separate patch helper. Pair this with a custom
+`OUT_ROOT` if you want to keep the results separate from the canonical
+`paper_exports/` tree.
 
 ## Test Suite
 

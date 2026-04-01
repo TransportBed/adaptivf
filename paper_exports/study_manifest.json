@@ -1,0 +1,232 @@
+{
+  "plans": {
+    "ablation": {
+      "datasets": [
+        {
+          "ann_bench_name": "glove-100-angular",
+          "dim": 100,
+          "eval_queries": 1000,
+          "indexed_size": 1183514,
+          "key": "glove",
+          "metric": "cosine",
+          "normalize": false,
+          "partitions": 1024,
+          "query_count": 10000
+        },
+        {
+          "ann_bench_name": "sift-128-euclidean",
+          "dim": 128,
+          "eval_queries": 10000,
+          "indexed_size": 1000000,
+          "key": "sift",
+          "metric": "l2",
+          "normalize": false,
+          "partitions": 1024,
+          "query_count": 10000
+        },
+        {
+          "ann_bench_name": "gist-960-euclidean",
+          "dim": 960,
+          "eval_queries": 1000,
+          "indexed_size": 1000000,
+          "key": "gist",
+          "metric": "l2",
+          "normalize": false,
+          "partitions": 1024,
+          "query_count": 1000
+        },
+        {
+          "ann_bench_name": "deep-image-96-angular",
+          "dim": 96,
+          "eval_queries": 10000,
+          "indexed_size": 9990000,
+          "key": "deep1m",
+          "metric": "cosine",
+          "normalize": true,
+          "partitions": 4096,
+          "query_count": 10000
+        }
+      ],
+      "methods": [
+        "AdaptIVF-Static",
+        "AdaptIVF",
+        "AdaptIVF-A4",
+        "AdaptIVF-Static+PQ",
+        "AdaptIVF+PQ",
+        "AdaptIVF-A4+PQ"
+      ],
+      "metrics": [
+        "Recall@10",
+        "avg_computations",
+        "index_overhead_mb",
+        "query_mem_delta_mb"
+      ],
+      "study": "ablation"
+    },
+    "competitiveness": {
+      "compressed_methods": [
+        "IVFPQ",
+        "MLP-IVFPQ",
+        "AdaptIVF+PQ"
+      ],
+      "datasets": [
+        {
+          "ann_bench_name": "glove-100-angular",
+          "dim": 100,
+          "eval_queries": 1000,
+          "indexed_size": 1183514,
+          "key": "glove",
+          "metric": "cosine",
+          "normalize": false,
+          "partitions": 1024,
+          "query_count": 10000
+        },
+        {
+          "ann_bench_name": "sift-128-euclidean",
+          "dim": 128,
+          "eval_queries": 10000,
+          "indexed_size": 1000000,
+          "key": "sift",
+          "metric": "l2",
+          "normalize": false,
+          "partitions": 1024,
+          "query_count": 10000
+        },
+        {
+          "ann_bench_name": "gist-960-euclidean",
+          "dim": 960,
+          "eval_queries": 1000,
+          "indexed_size": 1000000,
+          "key": "gist",
+          "metric": "l2",
+          "normalize": false,
+          "partitions": 1024,
+          "query_count": 1000
+        },
+        {
+          "ann_bench_name": "deep-image-96-angular",
+          "dim": 96,
+          "eval_queries": 10000,
+          "indexed_size": 9990000,
+          "key": "deep1m",
+          "metric": "cosine",
+          "normalize": true,
+          "partitions": 4096,
+          "query_count": 10000
+        }
+      ],
+      "load_balance_methods": [
+        "BLISS",
+        "LIRA",
+        "AdaptIVF"
+      ],
+      "metrics": [
+        "Recall@10",
+        "avg_computations",
+        "QPS",
+        "index_overhead_mb",
+        "query_mem_delta_mb",
+        "serving_footprint_mb"
+      ],
+      "study": "competitiveness",
+      "uncompressed_methods": [
+        "HNSW",
+        "IVF",
+        "MLP-IVF",
+        "BLISS",
+        "LIRA",
+        "AdaptIVF"
+      ]
+    },
+    "initialization": {
+      "datasets": [
+        {
+          "ann_bench_name": "glove-100-angular",
+          "dim": 100,
+          "eval_queries": 1000,
+          "indexed_size": 1183514,
+          "key": "glove",
+          "metric": "cosine",
+          "normalize": false,
+          "partitions": 1024,
+          "query_count": 10000
+        },
+        {
+          "ann_bench_name": "sift-128-euclidean",
+          "dim": 128,
+          "eval_queries": 10000,
+          "indexed_size": 1000000,
+          "key": "sift",
+          "metric": "l2",
+          "normalize": false,
+          "partitions": 1024,
+          "query_count": 10000
+        },
+        {
+          "ann_bench_name": "gist-960-euclidean",
+          "dim": 960,
+          "eval_queries": 1000,
+          "indexed_size": 1000000,
+          "key": "gist",
+          "metric": "l2",
+          "normalize": false,
+          "partitions": 1024,
+          "query_count": 1000
+        },
+        {
+          "ann_bench_name": "deep-image-96-angular",
+          "dim": 96,
+          "eval_queries": 10000,
+          "indexed_size": 9990000,
+          "key": "deep1m",
+          "metric": "cosine",
+          "normalize": true,
+          "partitions": 4096,
+          "query_count": 10000
+        }
+      ],
+      "methods": [
+        "BLISS",
+        "BLISS-KMeans",
+        "MLP-IVF"
+      ],
+      "metrics": [
+        "Recall@10",
+        "avg_computations",
+        "train_s"
+      ],
+      "probes": [
+        5,
+        10,
+        20,
+        40
+      ],
+      "study": "initialization"
+    }
+  },
+  "serving_ram": {
+    "csv": "serving_ram.csv",
+    "json": "serving_ram.json",
+    "rows": 44
+  },
+  "studies": {
+    "ablations": {
+      "csv": "ablations/all_datasets_summary.csv",
+      "directory": "ablations",
+      "json": "ablations/all_datasets_summary.json",
+      "rows": 24
+    },
+    "competitiveness": {
+      "csv": "competitiveness/all_datasets_summary.csv",
+      "directory": "competitiveness",
+      "json": "competitiveness/all_datasets_summary.json",
+      "rows": 44
+    },
+    "initialization": {
+      "csv": "initialization/all_datasets_summary.csv",
+      "directory": "initialization",
+      "json": "initialization/all_datasets_summary.json",
+      "rows": 48
+    }
+  }
+}

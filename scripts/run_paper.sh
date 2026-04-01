@@ -135,13 +135,15 @@ write_manifests() {
   PYTHONPATH="${REPO_ROOT}/src" "${PYTHON_BIN}" -m studies.initialization --datasets "${DATASETS}" --out-root "${OUT_ROOT}"
   PYTHONPATH="${REPO_ROOT}/src" "${PYTHON_BIN}" -m studies.competitiveness --datasets "${DATASETS}" --out-root "${OUT_ROOT}"
   PYTHONPATH="${REPO_ROOT}/src" "${PYTHON_BIN}" -m studies.ablation --datasets "${DATASETS}" --out-root "${OUT_ROOT}"
-  PYTHONPATH="${REPO_ROOT}/src" "${PYTHON_BIN}" -m collect --out-root "${OUT_ROOT}"
+  PYTHONPATH="${REPO_ROOT}/src" "${PYTHON_BIN}" -m collect --out-root "${OUT_ROOT}" --data-root "${DATA_ROOT}" --experiments-root "${EXPERIMENTS_ROOT}"
   PYTHONPATH="${REPO_ROOT}/src" "${PYTHON_BIN}" -m tables --out-root "${OUT_ROOT}"
   PYTHONPATH="${REPO_ROOT}/src" "${PYTHON_BIN}" -m plots --out-root "${OUT_ROOT}"
+  PYTHONPATH="${REPO_ROOT}/src" "${PYTHON_BIN}" -m export_bundle --out-root "${OUT_ROOT}"
 }
 
 clean_generated_artifacts() {
   PYTHONPATH="${REPO_ROOT}/src" "${PYTHON_BIN}" -m cli_clean_artifacts \
+    --yes \
     --out-root "${OUT_ROOT}" \
     --experiments-root "${EXPERIMENTS_ROOT}" \
     --logs-root "${REPO_ROOT}/logs"

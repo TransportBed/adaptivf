@@ -22,10 +22,32 @@ def _load_rows(path: Path) -> list[dict[str, object]]:
     return []
 
 
+def _norm_text(value: object) -> str:
+    return str(value or "").strip()
+
+
+def _norm_int(value: object) -> int:
+    if value is None:
+        return 0
+    text = str(value).strip()
+    if not text:
+        return 0
+    return int(float(text))
+
+
 def _merge_rows(existing: list[dict[str, object]], new_rows: list[dict[str, object]]) -> list[dict[str, object]]:
     merged: dict[tuple[object, object, object], dict[str, object]] = {}
     for row in existing + new_rows:
-        merged[(row.get("dataset"), row.get("method"), row.get("seed"))] = row
+        key = (
+            _norm_text(row.get("dataset")),
+            _norm_text(row.get("method")),
+            _norm_int(row.get("seed")),
+        )
+        normalized = dict(row)
+        normalized["dataset"] = key[0]
+        normalized["method"] = key[1]
+        normalized["seed"] = key[2]
+        merged[key] = normalized
     return sorted(
         merged.values(),
         key=lambda row: (

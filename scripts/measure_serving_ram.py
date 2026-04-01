@@ -69,7 +69,7 @@ def _measure_one(exp_dir: Path, data_root: Path) -> dict:
             [sys.executable, "-c", inner_code],
             capture_output=True,
             text=True,
-            timeout=600,
+            timeout=1800,
             env=env,
         )
         if proc.returncode != 0:
@@ -187,35 +187,45 @@ if inner_dir.exists():
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Measure serving RAM for completed experiments.")
-    parser.add_argument("--experiments-root", required=True, help="Root dir containing dataset subdirs")
+    parser.add_argument("--experiments-root", default=None, help="Root dir containing dataset subdirs")
     parser.add_argument("--data-root", required=True, help="Root dir containing dataset HDF5 files")
+    parser.add_argument("--experiments-file", default=None, help="Optional newline-delimited file of experiment directories to measure")
     parser.add_argument("--output", default=None, help="Output JSON file (default: stdout)")
     args = parser.parse_args()
 
-    exp_root = Path(args.experiments_root).expanduser().resolve()
     data_root = Path(args.data_root).expanduser().resolve()
 
     results: list[dict] = []
+    experiment_dirs: list[Path] = []
+    if args.experiments_file:
+        file_path = Path(args.experiments_file).expanduser().resolve()
+        for line in file_path.read_text(encoding="utf-8").splitlines():
+            text = line.strip()
+            if text:
+                experiment_dirs.append(Path(text).expanduser().resolve())
+    else:
+        if not args.experiments_root:
+            raise SystemExit("Either --experiments-root or --experiments-file is required")
+        exp_root = Path(args.experiments_root).expanduser().resolve()
+        for ds_dir in sorted(exp_root.iterdir()):
+            if not ds_dir.is_dir():
+                continue
+            for exp_dir in sorted(ds_dir.iterdir()):
+                if exp_dir.is_dir():
+                    experiment_dirs.append(exp_dir)
 
-    # Walk dataset subdirs → experiment dirs
-    for ds_dir in sorted(exp_root.iterdir()):
-        if not ds_dir.is_dir():
+    for exp_dir in experiment_dirs:
+        config_path = exp_dir / "config.json"
+        if not config_path.exists():
             continue
-        for exp_dir in sorted(ds_dir.iterdir()):
-            if not exp_dir.is_dir():
-                continue
-            config_path = exp_dir / "config.json"
-            if not config_path.exists():
-                continue
-            # Only measure completed experiments (have competitiveness_summary or metrics.json)
-            has_results = (exp_dir / "competitiveness_summary.json").exists() or (exp_dir / "metrics.json").exists()
-            if not has_results:
-                continue
+        has_results = (exp_dir / "competitiveness_summary.json").exists() or (exp_dir / "metrics.json").exists()
+        if not has_results:
+            continue
 
-            print(f"Measuring {exp_dir.name} ...", file=sys.stderr, flush=True)
-            row = _measure_one(exp_dir, data_root)
-            results.append(row)
-            print(json.dumps(row), flush=True)
+        print(f"Measuring {exp_dir.name} ...", file=sys.stderr, flush=True)
+        row = _measure_one(exp_dir, data_root)
+        results.append(row)
+        print(json.dumps(row), flush=True)
 
     if args.output:
         Path(args.output).write_text(

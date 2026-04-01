@@ -1,0 +1,650 @@
+{
+  "datasets": [
+    {
+      "ann_bench_name": "glove-100-angular",
+      "dim": 100,
+      "eval_queries": 1000,
+      "indexed_size": 1183514,
+      "key": "glove",
+      "metric": "cosine",
+      "normalize": false,
+      "partitions": 1024,
+      "query_count": 10000
+    },
+    {
+      "ann_bench_name": "sift-128-euclidean",
+      "dim": 128,
+      "eval_queries": 10000,
+      "indexed_size": 1000000,
+      "key": "sift",
+      "metric": "l2",
+      "normalize": false,
+      "partitions": 1024,
+      "query_count": 10000
+    },
+    {
+      "ann_bench_name": "gist-960-euclidean",
+      "dim": 960,
+      "eval_queries": 1000,
+      "indexed_size": 1000000,
+      "key": "gist",
+      "metric": "l2",
+      "normalize": false,
+      "partitions": 1024,
+      "query_count": 1000
+    },
+    {
+      "ann_bench_name": "deep-image-96-angular",
+      "dim": 96,
+      "eval_queries": 10000,
+      "indexed_size": 9990000,
+      "key": "deep1m",
+      "metric": "cosine",
+      "normalize": true,
+      "partitions": 4096,
+      "query_count": 10000
+    }
+  ],
+  "jobs": [
+    {
+      "dataset": "glove",
+      "method": "BLISS",
+      "ported": true,
+      "probe": 5,
+      "study": "initialization"
+    },
+    {
+      "dataset": "glove",
+      "method": "BLISS",
+      "ported": true,
+      "probe": 10,
+      "study": "initialization"
+    },
+    {
+      "dataset": "glove",
+      "method": "BLISS",
+      "ported": true,
+      "probe": 20,
+      "study": "initialization"
+    },
+    {
+      "dataset": "glove",
+      "method": "BLISS",
+      "ported": true,
+      "probe": 40,
+      "study": "initialization"
+    },
+    {
+      "dataset": "glove",
+      "method": "BLISS-KMeans",
+      "ported": true,
+      "probe": 5,
+      "study": "initialization"
+    },
+    {
+      "dataset": "glove",
+      "method": "BLISS-KMeans",
+      "ported": true,
+      "probe": 10,
+      "study": "initialization"
+    },
+    {
+      "dataset": "glove",
+      "method": "BLISS-KMeans",
+      "ported": true,
+      "probe": 20,
+      "study": "initialization"
+    },
+    {
+      "dataset": "glove",
+      "method": "BLISS-KMeans",
+      "ported": true,
+      "probe": 40,
+      "study": "initialization"
+    },
+    {
+      "dataset": "glove",
+      "method": "MLP-IVF",
+      "ported": true,
+      "probe": 5,
+      "study": "initialization"
+    },
+    {
+      "dataset": "glove",
+      "method": "MLP-IVF",
+      "ported": true,
+      "probe": 10,
+      "study": "initialization"
+    },
+    {
+      "dataset": "glove",
+      "method": "MLP-IVF",
+      "ported": true,
+      "probe": 20,
+      "study": "initialization"
+    },
+    {
+      "dataset": "glove",
+      "method": "MLP-IVF",
+      "ported": true,
+      "probe": 40,
+      "study": "initialization"
+    },
+    {
+      "dataset": "glove",
+      "method": "HNSW",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "glove",
+      "method": "IVF",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "glove",
+      "method": "MLP-IVF",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "glove",
+      "method": "BLISS",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "glove",
+      "method": "LIRA",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "glove",
+      "method": "AdaptIVF",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "glove",
+      "method": "IVFPQ",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "glove",
+      "method": "MLP-IVFPQ",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "glove",
+      "method": "AdaptIVF+PQ",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "sift",
+      "method": "BLISS",
+      "ported": true,
+      "probe": 5,
+      "study": "initialization"
+    },
+    {
+      "dataset": "sift",
+      "method": "BLISS",
+      "ported": true,
+      "probe": 10,
+      "study": "initialization"
+    },
+    {
+      "dataset": "sift",
+      "method": "BLISS",
+      "ported": true,
+      "probe": 20,
+      "study": "initialization"
+    },
+    {
+      "dataset": "sift",
+      "method": "BLISS",
+      "ported": true,
+      "probe": 40,
+      "study": "initialization"
+    },
+    {
+      "dataset": "sift",
+      "method": "BLISS-KMeans",
+      "ported": true,
+      "probe": 5,
+      "study": "initialization"
+    },
+    {
+      "dataset": "sift",
+      "method": "BLISS-KMeans",
+      "ported": true,
+      "probe": 10,
+      "study": "initialization"
+    },
+    {
+      "dataset": "sift",
+      "method": "BLISS-KMeans",
+      "ported": true,
+      "probe": 20,
+      "study": "initialization"
+    },
+    {
+      "dataset": "sift",
+      "method": "BLISS-KMeans",
+      "ported": true,
+      "probe": 40,
+      "study": "initialization"
+    },
+    {
+      "dataset": "sift",
+      "method": "MLP-IVF",
+      "ported": true,
+      "probe": 5,
+      "study": "initialization"
+    },
+    {
+      "dataset": "sift",
+      "method": "MLP-IVF",
+      "ported": true,
+      "probe": 10,
+      "study": "initialization"
+    },
+    {
+      "dataset": "sift",
+      "method": "MLP-IVF",
+      "ported": true,
+      "probe": 20,
+      "study": "initialization"
+    },
+    {
+      "dataset": "sift",
+      "method": "MLP-IVF",
+      "ported": true,
+      "probe": 40,
+      "study": "initialization"
+    },
+    {
+      "dataset": "sift",
+      "method": "HNSW",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "sift",
+      "method": "IVF",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "sift",
+      "method": "MLP-IVF",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "sift",
+      "method": "BLISS",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "sift",
+      "method": "LIRA",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "sift",
+      "method": "AdaptIVF",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "sift",
+      "method": "IVFPQ",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "sift",
+      "method": "MLP-IVFPQ",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "sift",
+      "method": "AdaptIVF+PQ",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "gist",
+      "method": "BLISS",
+      "ported": true,
+      "probe": 5,
+      "study": "initialization"
+    },
+    {
+      "dataset": "gist",
+      "method": "BLISS",
+      "ported": true,
+      "probe": 10,
+      "study": "initialization"
+    },
+    {
+      "dataset": "gist",
+      "method": "BLISS",
+      "ported": true,
+      "probe": 20,
+      "study": "initialization"
+    },
+    {
+      "dataset": "gist",
+      "method": "BLISS",
+      "ported": true,
+      "probe": 40,
+      "study": "initialization"
+    },
+    {
+      "dataset": "gist",
+      "method": "BLISS-KMeans",
+      "ported": true,
+      "probe": 5,
+      "study": "initialization"
+    },
+    {
+      "dataset": "gist",
+      "method": "BLISS-KMeans",
+      "ported": true,
+      "probe": 10,
+      "study": "initialization"
+    },
+    {
+      "dataset": "gist",
+      "method": "BLISS-KMeans",
+      "ported": true,
+      "probe": 20,
+      "study": "initialization"
+    },
+    {
+      "dataset": "gist",
+      "method": "BLISS-KMeans",
+      "ported": true,
+      "probe": 40,
+      "study": "initialization"
+    },
+    {
+      "dataset": "gist",
+      "method": "MLP-IVF",
+      "ported": true,
+      "probe": 5,
+      "study": "initialization"
+    },
+    {
+      "dataset": "gist",
+      "method": "MLP-IVF",
+      "ported": true,
+      "probe": 10,
+      "study": "initialization"
+    },
+    {
+      "dataset": "gist",
+      "method": "MLP-IVF",
+      "ported": true,
+      "probe": 20,
+      "study": "initialization"
+    },
+    {
+      "dataset": "gist",
+      "method": "MLP-IVF",
+      "ported": true,
+      "probe": 40,
+      "study": "initialization"
+    },
+    {
+      "dataset": "gist",
+      "method": "HNSW",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "gist",
+      "method": "IVF",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "gist",
+      "method": "MLP-IVF",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "gist",
+      "method": "BLISS",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "gist",
+      "method": "LIRA",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "gist",
+      "method": "AdaptIVF",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "gist",
+      "method": "IVFPQ",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "gist",
+      "method": "MLP-IVFPQ",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "gist",
+      "method": "AdaptIVF+PQ",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "deep1m",
+      "method": "BLISS",
+      "ported": true,
+      "probe": 5,
+      "study": "initialization"
+    },
+    {
+      "dataset": "deep1m",
+      "method": "BLISS",
+      "ported": true,
+      "probe": 10,
+      "study": "initialization"
+    },
+    {
+      "dataset": "deep1m",
+      "method": "BLISS",
+      "ported": true,
+      "probe": 20,
+      "study": "initialization"
+    },
+    {
+      "dataset": "deep1m",
+      "method": "BLISS",
+      "ported": true,
+      "probe": 40,
+      "study": "initialization"
+    },
+    {
+      "dataset": "deep1m",
+      "method": "BLISS-KMeans",
+      "ported": true,
+      "probe": 5,
+      "study": "initialization"
+    },
+    {
+      "dataset": "deep1m",
+      "method": "BLISS-KMeans",
+      "ported": true,
+      "probe": 10,
+      "study": "initialization"
+    },
+    {
+      "dataset": "deep1m",
+      "method": "BLISS-KMeans",
+      "ported": true,
+      "probe": 20,
+      "study": "initialization"
+    },
+    {
+      "dataset": "deep1m",
+      "method": "BLISS-KMeans",
+      "ported": true,
+      "probe": 40,
+      "study": "initialization"
+    },
+    {
+      "dataset": "deep1m",
+      "method": "MLP-IVF",
+      "ported": true,
+      "probe": 5,
+      "study": "initialization"
+    },
+    {
+      "dataset": "deep1m",
+      "method": "MLP-IVF",
+      "ported": true,
+      "probe": 10,
+      "study": "initialization"
+    },
+    {
+      "dataset": "deep1m",
+      "method": "MLP-IVF",
+      "ported": true,
+      "probe": 20,
+      "study": "initialization"
+    },
+    {
+      "dataset": "deep1m",
+      "method": "MLP-IVF",
+      "ported": true,
+      "probe": 40,
+      "study": "initialization"
+    },
+    {
+      "dataset": "deep1m",
+      "method": "HNSW",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "deep1m",
+      "method": "IVF",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "deep1m",
+      "method": "MLP-IVF",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "deep1m",
+      "method": "BLISS",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "deep1m",
+      "method": "LIRA",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "deep1m",
+      "method": "AdaptIVF",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "deep1m",
+      "method": "IVFPQ",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "deep1m",
+      "method": "MLP-IVFPQ",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    },
+    {
+      "dataset": "deep1m",
+      "method": "AdaptIVF+PQ",
+      "ported": true,
+      "probe": null,
+      "study": "competitiveness"
+    }
+  ],
+  "ported_methods": [
+    "IVF",
+    "IVFPQ",
+    "HNSW",
+    "BLISS",
+    "BLISS-KMeans",
+    "MLP-IVF",
+    "MLP-IVFPQ",
+    "AdaptIVF",
+    "AdaptIVF+PQ",
+    "LIRA"
+  ]
+}
