@@ -1,0 +1,11 @@
+method,role_or_key_mechanism
+HNSW,Graph baseline
+IVF,Static coarse quantization with fixed probing
+IVFPQ,IVF with PQ compression and ADC scan
+BLISS,Hash initialization and repeated partitions
+BLISS-KMeans,BLISS with k-means initialization
+MLP-IVF,BLISS-style MLP with IVF initialization
+MLP-IVFPQ,MLP-IVF with PQ compression
+LIRA,Learned partition selection with local indexes
+AdaptIVF,Single-backbone uncertainty-aware routing
+AdaptIVF+PQ,Compressed variant of AdaptIVF

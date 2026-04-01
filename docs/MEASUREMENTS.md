@@ -94,6 +94,18 @@ The canonical export bundle under `paper_exports/` now includes:
 - `serving_ram.json` and `serving_ram.csv`
 - `plots_manifest.json`, `tables_manifest.json`, and `study_manifest.json`
 
+## Paper-Facing Naming
+
+The finished export bundle now uses a strict paper-facing naming rule:
+
+- `main_*` artifacts are the plots and tables used directly by the manuscript
+- `appendix_*` artifacts are supporting figures kept for supplementary material
+- study-local raw summaries remain under `initialization/`, `competitiveness/`,
+  and `ablations/`
+
+This keeps the tracked bundle legible for reviewers while preserving the full
+numeric surface for reproduction.
+
 To keep the tracked export bundle publishable, the canonical summaries and
 manifests store artifact provenance as repo-relative paths instead of
 machine-local absolute paths.

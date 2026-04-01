@@ -49,6 +49,25 @@ also the structurally heaviest one.
 Only `AdaptIVF` and `AdaptIVF+PQ` are public API methods. The `m80`, `Static`,
 and `A4` variants are benchmark-only analysis settings.
 
+## Paper-Facing Figure Surface
+
+The main-paper competitiveness figures intentionally use a narrower subset than
+the full benchmark roster:
+
+- `HNSW`
+- `IVF`
+- `IVFPQ`
+- `BLISS`
+- `LIRA`
+- `AdaptIVF`
+- `AdaptIVF-m80`
+- `AdaptIVF+PQ`
+- `AdaptIVF+PQ-m80`
+
+`MLP-IVF` and `MLP-IVFPQ` remain part of the benchmark suite and the canonical
+CSV summaries, but they are omitted from the main competitiveness figures to
+keep the paper-facing frontier readable.
+
 ## Implementation Strategy
 
 Prefer published packages for generic primitives:

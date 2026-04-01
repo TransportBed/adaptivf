@@ -1,0 +1,264 @@
+\documentclass[sigconf]{acmart}
+
+\settopmatter{printacmref=false}
+\renewcommand\footnotetextcopyrightpermission[1]{}
+\pagestyle{plain}
+
+\usepackage{booktabs}
+\usepackage{array}
+
+% Copy the exported appendix figures into a local `figures/` directory and use
+% the simplified filenames referenced below:
+%
+%   appendix_recall_vs_qps.pdf
+%   appendix_recall_vs_index_overhead.pdf
+%   appendix_init_recall_vs_avg_computations.pdf
+%   appendix_query_ram_vs_index_overhead.pdf
+%   appendix_serving_ram_vs_index_overhead.pdf
+%   appendix_computation_range_bars.pdf
+%   appendix_ablation_recall_vs_avg_computations.pdf
+%   appendix_ablation_recall_vs_index_overhead.pdf
+
+\graphicspath{{figures/}}
+
+\begin{document}
+
+\title{Supplementary Material: Uncertainty-Aware Learned Routing for Partitioned Vector Search}
+\author{Anonymous Authors}
+\maketitle
+
+\section{Additional Tradeoff Views}
+
+\noindent This appendix adds views that are informative but too detailed for the
+main paper. The figures in this section refine the competitiveness story along
+three complementary axes: throughput, structural cost, and workload-normalized
+initialization behavior. Together they show that the strongest AdaptIVF regime
+is obtained by changing query-time effort on a compact backbone, not by moving
+to a heavier serving structure.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\linewidth]{appendix_recall_vs_qps.pdf}
+  \caption{Recall@10 versus QPS across the full competitiveness study. This view isolates the quality--throughput frontier directly: classical baselines remain the raw speed anchors, while the stronger AdaptIVF settings trade additional online work for higher recall rather than for larger index structures.}
+  \label{fig:appendix:recall_qps}
+\end{figure*}
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\linewidth]{appendix_recall_vs_index_overhead.pdf}
+  \caption{Recall@10 versus index overhead. This figure makes the structural split among the learned methods explicit: LIRA reaches strong recall with a much heavier index, whereas AdaptIVF retains a substantially smaller footprint while recovering high-cap recall.}
+  \label{fig:appendix:recall_index}
+\end{figure*}
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\linewidth]{appendix_init_recall_vs_avg_computations.pdf}
+  \caption{Initialization study under the workload axis. Expressing the sweep against average computations rather than probe depth preserves the same qualitative split as the main initialization figure: geometry-aware initialization is decisive on SIFT, while BLISS remains competitive or stronger on GIST and Deep1M.}
+  \label{fig:appendix:init_avg_comp}
+\end{figure*}
+
+\noindent Read together, these three figures refine the main-paper account
+without changing it. The first two confirm that the strongest AdaptIVF
+operating regime is reached by spending more online work on the same compact
+index, while the initialization workload plot shows that the choice of coarse
+seed is genuinely dataset-dependent rather than uniformly favorable to
+geometric seeding.
+
+\section{Query Work Distribution}
+
+\noindent Average computations are the main workload metric in the paper, but
+they can hide substantial per-query variation. The following figure adds that
+missing detail by contrasting minimum, average, and maximum computation counts
+for the methods that report all three quantities. This is especially relevant
+for adaptive routing, where the workload is meant to respond to query
+difficulty rather than stay fixed.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\linewidth]{appendix_computation_range_bars.pdf}
+  \caption{Per-query computation range for methods that emit minimum, average, and maximum search work. This figure complements the average-computation plots by showing that methods with similar means can have very different tails. In particular, the higher-cap AdaptIVF variants expand the upper tail substantially, which is consistent with their stronger recall regime and clarifies that the main tradeoff is concentrated in hard queries rather than in uniform work inflation.}
+  \label{fig:appendix:computation_range}
+\end{figure*}
+
+\noindent The main qualitative pattern is that low-cap configurations remain
+closer to a bounded workload regime, whereas the stronger high-cap settings
+derive part of their recall gain from allowing much larger worst-case search
+effort. That is precisely the controller-calibration question left open by the
+main results: how much of that tail can be retained for difficult queries
+without paying for it as often.
+
+\section{Memory and Serving Diagnostics}
+
+\noindent The main paper argues that AdaptIVF should be understood as a compact
+learned system, not merely as a retrieval method. The memory diagnostics below
+back that claim from two sides: query-time RSS deltas capture incremental
+online cost, while serving-overhead RSS measures the resident cost of loading
+the required artifacts before queries arrive.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.49\linewidth]{appendix_query_ram_vs_index_overhead.pdf}
+  \hfill
+  \includegraphics[width=0.49\linewidth]{appendix_serving_ram_vs_index_overhead.pdf}
+  \caption{Memory diagnostics. Left: isolated query-path RAM delta versus index overhead. Right: isolated post-load serving RAM versus index overhead. The same pattern appears on both views: the single-backbone AdaptIVF family remains materially lighter than LIRA, while the compressed baselines retain the smallest memory footprint overall.}
+  \label{fig:appendix:memory}
+\end{figure*}
+
+\begin{table*}[t]
+  \centering
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \caption{Learned-method memory summary. Query RAM is the isolated per-query RSS delta; Serving Overhead is the isolated post-load method overhead in MB. The table shows that AdaptIVF remains materially lighter than LIRA both at query time and after the serving artifacts are loaded.}
+  \label{tab:appendix:memory}
+  \begin{tabular}{llrr}
+    \toprule
+    Dataset & Method & Query RAM & Serving Overhead \\
+    \midrule
+    GloVe & BLISS & 24.1 & 507.6 \\
+    GloVe & LIRA & 25.0 & 989.4 \\
+    GloVe & AdaptIVF-10 & 12.1 & 498.2 \\
+    GloVe & AdaptIVF-80 & 38.2 & 498.0 \\
+    GloVe & AdaptIVF+PQ-10 & 10.2 & 516.8 \\
+    GloVe & AdaptIVF+PQ-80 & 15.2 & 516.4 \\
+    \midrule
+    SIFT & BLISS & 31.5 & 540.0 \\
+    SIFT & LIRA & 169.4 & 1020.9 \\
+    SIFT & AdaptIVF-10 & 17.0 & 531.4 \\
+    SIFT & AdaptIVF-80 & 41.0 & 531.5 \\
+    SIFT & AdaptIVF+PQ-10 & 10.9 & 546.9 \\
+    SIFT & AdaptIVF+PQ-80 & 12.4 & 547.0 \\
+    \midrule
+    GIST & BLISS & 41.7 & 3714.0 \\
+    GIST & LIRA & 25.6 & 4224.9 \\
+    GIST & AdaptIVF-10 & 33.6 & 3705.4 \\
+    GIST & AdaptIVF-80 & 27.0 & 3704.8 \\
+    GIST & AdaptIVF+PQ-10 & 9.3 & 3721.6 \\
+    GIST & AdaptIVF+PQ-80 & 10.7 & 3721.6 \\
+    \midrule
+    Deep1M & BLISS & 45.1 & 3877.6 \\
+    Deep1M & LIRA & 799.2 & 4281.1 \\
+    Deep1M & AdaptIVF-10 & 30.2 & 3829.6 \\
+    Deep1M & AdaptIVF-80 & 47.3 & 3829.7 \\
+    Deep1M & AdaptIVF+PQ-10 & 16.1 & 3982.2 \\
+    Deep1M & AdaptIVF+PQ-80 & 12.0 & 3982.1 \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\noindent The memory views are useful because they distinguish ``small on disk''
+from ``light to serve.'' On both criteria, AdaptIVF remains materially closer
+to BLISS than to LIRA, while still offering a more favorable storage profile
+than either repeated-structure or local-index learned baselines.
+
+\section{Detailed Tables}
+
+\noindent The tables in this section are included for direct numerical lookup.
+They are intentionally compact, but together they cover the three quantitative
+surfaces most likely to be cross-checked during review: initialization at the
+representative probe depth, competitiveness under recall/work, and
+competitiveness under speed/overhead.
+
+\begin{table*}[t]
+  \centering
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \caption{Initialization summary at the representative operating point $m=10$. Each method entry reports Recall@10 and Avg. Comp. (k). The table mirrors the initialization figure numerically and shows the dataset-dependent reversal directly: geometry-aware initialization dominates on SIFT, while hash-seeded BLISS is stronger on GIST and Deep1M.}
+  \label{tab:appendix:init_m10}
+  \begin{tabular}{lrrrrrr}
+    \toprule
+    Dataset & \multicolumn{2}{c}{BLISS} & \multicolumn{2}{c}{BLISS-KMeans} & \multicolumn{2}{c}{MLP-IVF} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+     & Recall & Avg. Comp. & Recall & Avg. Comp. & Recall & Avg. Comp. \\
+    \midrule
+    GloVe & 0.819 & 30.0 & 0.825 & 26.9 & 0.822 & 24.9 \\
+    SIFT & 0.676 & 38.7 & 0.928 & 21.4 & 0.927 & 20.0 \\
+    GIST & 0.834 & 35.0 & 0.756 & 35.4 & 0.752 & 35.8 \\
+    Deep1M & 0.922 & 46.7 & 0.896 & 46.9 & 0.900 & 54.2 \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\begin{table*}[t]
+  \centering
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \caption{Competitiveness summary: Recall@10 and Avg. Comp. (k) at the fixed operating point used for the final run. This table provides the numeric counterpart to the main recall--work figure and makes the role of the `m80` variants explicit.}
+  \label{tab:appendix:comp_recall}
+  \begin{tabular}{lrrrrrrrr}
+    \toprule
+    Method & \multicolumn{2}{c}{GloVe} & \multicolumn{2}{c}{SIFT} & \multicolumn{2}{c}{GIST} & \multicolumn{2}{c}{Deep1M} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+     & Recall & Avg. Comp. & Recall & Avg. Comp. & Recall & Avg. Comp. & Recall & Avg. Comp. \\
+    \midrule
+    HNSW & 0.897 & 4.9 & 0.996 & 3.0 & 0.914 & 3.8 & 0.981 & 3.7 \\
+    IVF & 0.749 & 12.3 & 0.875 & 10.8 & 0.704 & 14.0 & 0.857 & 29.6 \\
+    IVFPQ & 0.379 & 12.3 & 0.546 & 10.8 & 0.171 & 14.0 & 0.456 & 29.6 \\
+    BLISS & 0.814 & 30.1 & 0.730 & 38.7 & 0.831 & 35.3 & 0.924 & 47.0 \\
+    MLP-IVF & 0.822 & 25.1 & 0.929 & 20.4 & 0.760 & 35.9 & 0.902 & 54.1 \\
+    MLP-IVFPQ & 0.758 & 25.2 & 0.928 & 20.5 & 0.591 & 36.0 & 0.888 & 54.2 \\
+    LIRA & 0.875 & 0.8 & 0.972 & 0.8 & 0.916 & 0.9 & 0.932 & 0.8 \\
+    AdaptIVF-10 & 0.736 & 21.4 & 0.825 & 17.5 & 0.568 & 19.0 & 0.822 & 45.6 \\
+    AdaptIVF-80 & 0.913 & 53.8 & 0.956 & 31.4 & 0.921 & 104.8 & 0.954 & 91.1 \\
+    AdaptIVF+PQ-10 & 0.692 & 21.4 & 0.814 & 17.5 & 0.477 & 19.1 & 0.813 & 45.7 \\
+    AdaptIVF+PQ-80 & 0.801 & 54.3 & 0.954 & 31.8 & 0.661 & 103.9 & 0.934 & 90.9 \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\begin{table*}[t]
+  \centering
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \caption{Competitiveness summary: QPS and Index Overhead (MB) at the same fixed operating point. This view complements Table~\ref{tab:appendix:comp_recall} by separating serving speed from structural cost.}
+  \label{tab:appendix:comp_systems}
+  \begin{tabular}{lrrrrrrrr}
+    \toprule
+    Method & \multicolumn{2}{c}{GloVe} & \multicolumn{2}{c}{SIFT} & \multicolumn{2}{c}{GIST} & \multicolumn{2}{c}{Deep1M} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+     & QPS & Overhead & QPS & Overhead & QPS & Overhead & QPS & Overhead \\
+    \midrule
+    HNSW & 33648.7 & 758.6 & 46930.3 & 747.8 & 8323.0 & 3921.6 & 59596.6 & 6251.1 \\
+    IVF & 40545.6 & 460.9 & 54114.6 & 496.4 & 5711.7 & 3673.5 & 27520.6 & 3736.2 \\
+    IVFPQ & 128205.7 & 27.6 & 155753.6 & 23.5 & 77185.4 & 27.6 & 101208.8 & 230.3 \\
+    BLISS & 23.5 & 45.0 & 19.8 & 39.6 & 13.5 & 46.1 & 37.7 & 337.8 \\
+    MLP-IVF & 48.3 & 45.0 & 81.9 & 39.6 & 13.7 & 46.1 & 34.0 & 337.8 \\
+    MLP-IVFPQ & 7.6 & 63.1 & 19.7 & 55.0 & 7.0 & 62.3 & 6.2 & 490.3 \\
+    LIRA & 279.3 & 1531.3 & 457.3 & 1509.4 & 133.7 & 7857.0 & 324.6 & 12628.9 \\
+    AdaptIVF-10 & 62.6 & 19.3 & 100.8 & 15.8 & 19.4 & 17.9 & 38.5 & 150.1 \\
+    AdaptIVF-80 & 47.9 & 19.3 & 68.6 & 15.8 & 9.3 & 17.8 & 29.1 & 150.2 \\
+    AdaptIVF+PQ-10 & 7.5 & 37.5 & 19.8 & 31.2 & 8.9 & 34.0 & 5.6 & 302.8 \\
+    AdaptIVF+PQ-80 & 5.7 & 37.5 & 16.6 & 31.2 & 5.1 & 34.0 & 4.0 & 302.8 \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\section{Ablation Diagnostics}
+
+\noindent The main paper keeps the ablation compact because the central
+question is architectural rather than exhaustive. The two figures below expand
+that view and make the current limitation of the dynamic controller easier to
+see: the backbone and selective-assignment design are already stable, whereas
+the low-cap adaptive controller is not yet the strongest average-case operating
+point.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\linewidth]{appendix_ablation_recall_vs_avg_computations.pdf}
+  \caption{Ablation recall versus average computations. The static variant remains strongest on most datasets at the current low-cap operating point, while the larger-replication A4 setting usually increases work without consistently closing the gap.}
+  \label{fig:appendix:ablation_avg}
+\end{figure*}
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\linewidth]{appendix_ablation_recall_vs_index_overhead.pdf}
+  \caption{Ablation recall versus index overhead. The same ordering persists when the ablations are viewed against structural cost: the main unresolved issue is controller calibration, not lack of index capacity.}
+  \label{fig:appendix:ablation_overhead}
+\end{figure*}
+
+\noindent These ablation views sharpen the interpretation of the main table.
+The current query-time entropy controller is not yet the strongest low-cap
+average-case configuration, but the underlying compact backbone and
+selective-assignment design are already well supported. The next improvement
+target is therefore controller calibration, not a more elaborate index family.
+
+\end{document}

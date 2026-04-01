@@ -10,6 +10,20 @@ from artifacts import write_csv, write_json
 from presets import DATASETS, PAPER_DATASETS
 
 
+BASELINE_ROWS = [
+    {"method": "HNSW", "role_or_key_mechanism": "Graph baseline"},
+    {"method": "IVF", "role_or_key_mechanism": "Static coarse quantization with fixed probing"},
+    {"method": "IVFPQ", "role_or_key_mechanism": "IVF with PQ compression and ADC scan"},
+    {"method": "BLISS", "role_or_key_mechanism": "Hash initialization and repeated partitions"},
+    {"method": "BLISS-KMeans", "role_or_key_mechanism": "BLISS with k-means initialization"},
+    {"method": "MLP-IVF", "role_or_key_mechanism": "BLISS-style MLP with IVF initialization"},
+    {"method": "MLP-IVFPQ", "role_or_key_mechanism": "MLP-IVF with PQ compression"},
+    {"method": "LIRA", "role_or_key_mechanism": "Learned partition selection with local indexes"},
+    {"method": "AdaptIVF", "role_or_key_mechanism": "Single-backbone uncertainty-aware routing"},
+    {"method": "AdaptIVF+PQ", "role_or_key_mechanism": "Compressed variant of AdaptIVF"},
+]
+
+
 def _load_csv(path: Path) -> pd.DataFrame:
     if not path.exists():
         return pd.DataFrame()
@@ -78,26 +92,30 @@ def main() -> None:
             }
         )
     datasets_df = pd.DataFrame(dataset_rows)
-    _write_table(table_dir / "datasets_table.csv", datasets_df)
+    _write_table(table_dir / "main_datasets_table.csv", datasets_df)
+
+    baselines_df = pd.DataFrame(BASELINE_ROWS)
+    _write_table(table_dir / "main_baselines_table.csv", baselines_df)
 
     init_df = _load_csv(out_root / "initialization" / "all_datasets_summary.csv")
     init_table = _aggregate(init_df, ["dataset", "method", "probe_depth"]) if not init_df.empty else pd.DataFrame()
-    _write_table(table_dir / "initialization_summary_table.csv", init_table)
+    _write_table(table_dir / "appendix_initialization_summary_table.csv", init_table)
 
     comp_df = _load_csv(out_root / "competitiveness" / "all_datasets_summary.csv")
     comp_table = _aggregate(comp_df, ["dataset", "method"]) if not comp_df.empty else pd.DataFrame()
-    _write_table(table_dir / "competitiveness_summary_table.csv", comp_table)
+    _write_table(table_dir / "appendix_competitiveness_summary_table.csv", comp_table)
 
     ablation_df = _load_csv(out_root / "ablations" / "all_datasets_summary.csv")
     ablation_table = _aggregate(ablation_df, ["dataset", "method"]) if not ablation_df.empty else pd.DataFrame()
-    _write_table(table_dir / "ablation_summary_table.csv", ablation_table)
+    _write_table(table_dir / "main_ablation_summary_table.csv", ablation_table)
 
     payload = {
         "tables": {
-            "datasets_table": _out_relative_path(table_dir / "datasets_table.csv", out_root=out_root),
-            "initialization_summary_table": _out_relative_path(table_dir / "initialization_summary_table.csv", out_root=out_root),
-            "competitiveness_summary_table": _out_relative_path(table_dir / "competitiveness_summary_table.csv", out_root=out_root),
-            "ablation_summary_table": _out_relative_path(table_dir / "ablation_summary_table.csv", out_root=out_root),
+            "main_datasets_table": _out_relative_path(table_dir / "main_datasets_table.csv", out_root=out_root),
+            "main_baselines_table": _out_relative_path(table_dir / "main_baselines_table.csv", out_root=out_root),
+            "appendix_initialization_summary_table": _out_relative_path(table_dir / "appendix_initialization_summary_table.csv", out_root=out_root),
+            "appendix_competitiveness_summary_table": _out_relative_path(table_dir / "appendix_competitiveness_summary_table.csv", out_root=out_root),
+            "main_ablation_summary_table": _out_relative_path(table_dir / "main_ablation_summary_table.csv", out_root=out_root),
         }
     }
     write_json(out_root / "tables_manifest.json", payload)

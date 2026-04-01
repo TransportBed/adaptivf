@@ -30,6 +30,18 @@ The finished run supports five stable conclusions.
   low-cap default controller leaves too much recall on the table and the
   high-cap controller pays heavily in candidate volume and QPS.
 
+## Paper-Facing Asset Split
+
+The tracked export bundle now mirrors the manuscript directly:
+
+- `main_*` figures are the assets used in the paper body
+- `appendix_*` figures are supplementary diagnostics
+- `tables/main_*` are the paper tables
+- `tables/appendix_*` are supporting numeric summaries
+
+This keeps the public artifact bundle aligned with the actual submission rather
+than with the full internal plotting surface.
+
 ## 1. Initialization Study
 
 At `m=10`, the initialization study isolates the same dataset split that now

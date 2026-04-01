@@ -33,6 +33,7 @@ coverage.xml
 data/
 logs/
 experiments/
+paper/
 cache/
 .numba_cache/
 

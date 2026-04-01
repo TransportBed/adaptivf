@@ -1,8 +1,9 @@
 {
   "tables": {
-    "ablation_summary_table": "tables/ablation_summary_table.csv",
-    "competitiveness_summary_table": "tables/competitiveness_summary_table.csv",
-    "datasets_table": "tables/datasets_table.csv",
-    "initialization_summary_table": "tables/initialization_summary_table.csv"
+    "appendix_competitiveness_summary_table": "tables/appendix_competitiveness_summary_table.csv",
+    "appendix_initialization_summary_table": "tables/appendix_initialization_summary_table.csv",
+    "main_ablation_summary_table": "tables/main_ablation_summary_table.csv",
+    "main_baselines_table": "tables/main_baselines_table.csv",
+    "main_datasets_table": "tables/main_datasets_table.csv"
   }
 }

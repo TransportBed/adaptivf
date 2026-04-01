@@ -953,10 +953,10 @@ def main() -> None:
     plot_names: list[str] = []
 
     if not init_df.empty:
-        stem = out_root / "init_recall_vs_m_facets"
+        stem = out_root / "main_init_recall_vs_m_facets"
         _line_facets(init_df, x="probe_depth", y="recall_at_10", stem=stem, title="Initialization: Recall@10 vs probe depth", method_order=["BLISS", "BLISS-KMeans", "MLP-IVF"])
         plot_names.append(stem.stem)
-        stem = out_root / "init_recall_vs_avg_computations_facets"
+        stem = out_root / "appendix_init_recall_vs_avg_computations_facets"
         _line_facets(init_df, x="avg_computations", y="recall_at_10", stem=stem, title="Initialization: Recall@10 vs avg computations", method_order=["BLISS", "BLISS-KMeans", "MLP-IVF"])
         plot_names.append(stem.stem)
 
@@ -976,13 +976,13 @@ def main() -> None:
             ],
         )
         plot_names.append(stem.stem)
-        stem = out_root / "main_recall_vs_qps_facets"
+        stem = out_root / "appendix_recall_vs_qps_facets"
         _scatter_facets(comp_main_df, x="qps", y="recall_at_10", stem=stem, title="Main: Recall@10 vs QPS", method_order=MAIN_PLOT_METHOD_ORDER)
         plot_names.append(stem.stem)
         stem = out_root / "main_qps_vs_index_overhead_facets"
         _scatter_facets(comp_main_df, x="index_overhead_mb", y="qps", stem=stem, title="Main: QPS vs index overhead", method_order=MAIN_PLOT_METHOD_ORDER)
         plot_names.append(stem.stem)
-        stem = out_root / "main_recall_compute_storage_triangle_facets"
+        stem = out_root / "appendix_recall_compute_storage_triangle_facets"
         _tradeoff_triangle_facets(
             comp_main_df,
             stem=stem,
@@ -1004,13 +1004,9 @@ def main() -> None:
             ],
         )
         plot_names.append(stem.stem)
-        stem = out_root / "main_recall_vs_index_overhead_facets"
+        stem = out_root / "appendix_recall_vs_index_overhead_facets"
         _scatter_facets(comp_main_df, x="index_overhead_mb", y="recall_at_10", stem=stem, title="Main: Recall@10 vs index overhead", method_order=MAIN_PLOT_METHOD_ORDER)
         plot_names.append(stem.stem)
-        if "rss_serving_mb" in comp_main_df.columns and comp_main_df["rss_serving_mb"].notna().any():
-            stem = out_root / "main_serving_ram_vs_index_overhead_facets"
-            _scatter_facets(comp_main_df, x="index_overhead_mb", y="rss_serving_mb", stem=stem, title="Main: Serving RAM vs index overhead", method_order=MAIN_PLOT_METHOD_ORDER)
-            plot_names.append(stem.stem)
         load_balance_df = _load_balance_rows(_restrict_methods(comp_raw, MAIN_PLOT_METHOD_ORDER))
         stem = out_root / "main_load_balance_bucket_rank_facets"
         _load_balance_plot(load_balance_df, stem)
@@ -1018,10 +1014,10 @@ def main() -> None:
             plot_names.append(stem.stem)
 
     if not ablation_df.empty:
-        stem = out_root / "ablation_recall_vs_avg_computations_facets"
+        stem = out_root / "appendix_ablation_recall_vs_avg_computations_facets"
         _ablation_plot(ablation_df, x="avg_computations", stem=stem, title="AdaptIVF ablations: Recall@10 vs avg computations")
         plot_names.append(stem.stem)
-        stem = out_root / "ablation_recall_vs_index_overhead_facets"
+        stem = out_root / "appendix_ablation_recall_vs_index_overhead_facets"
         _ablation_plot(ablation_df, x="index_overhead_mb", stem=stem, title="AdaptIVF ablations: Recall@10 vs index overhead")
         plot_names.append(stem.stem)
 

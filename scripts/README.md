@@ -19,12 +19,15 @@ bash scripts/run_paper.sh
 ```
 
 Runs the complete evaluation pipeline in tmux. By default it now starts from a
-clean canonical export tree and regenerates `paper_exports/` in place.
+clean canonical export tree and regenerates `paper_exports/` in place. This is
+expected to recreate the same export layout and filenames, but not necessarily
+byte-identical figures or identical runtime-sensitive measurements such as QPS
+and RAM.
 
 1. **Initialization study** — routing efficiency across probe depths (BLISS, BLISS-KMeans, MLP-IVF)
 2. **Competitiveness study** — the 9 core comparison methods across all datasets, plus the `m_max=80` AdaptIVF analysis variants
 3. **Ablation study** — AdaptIVF variants (Static, A4, with/without PQ)
-4. **Finalize exports** — rebuild normalized summaries, measure serving RAM for canonical competitiveness experiments, regenerate tables/plots including the RAM figures, and write the export-bundle README / appendix scaffold in `paper_exports/`
+4. **Finalize exports** — rebuild normalized summaries, measure serving RAM for canonical competitiveness experiments, regenerate tables/plots including the RAM figures, and write the export-bundle README in `paper_exports/`
 
 ### Flags
 

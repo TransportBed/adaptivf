@@ -144,7 +144,7 @@ Default run surface:
 bash scripts/run_paper.sh
 ```
 
-This is the intended default command: all benchmark datasets, all benchmark methods, and the AdaptIVF ablation study, sequential in tmux, with cleanup of prior generated artifacts. The run regenerates `paper_exports/` at the end, including normalized study summaries, isolated query-RAM and serving-RAM measurements, plots, tables, and the export-bundle README.
+This is the intended default command: all benchmark datasets, all benchmark methods, and the AdaptIVF ablation study, sequential in tmux, with cleanup of prior generated artifacts. The run regenerates `paper_exports/` at the end, including normalized study summaries, isolated query-RAM and serving-RAM measurements, plots, tables, and the export-bundle README. Re-running the pipeline is expected to recreate the same export layout and file set, but not necessarily byte-identical plots or identical runtime-sensitive values such as QPS and RAM.
 
 For repeated seeds:
 
@@ -178,7 +178,7 @@ bash scripts/run_paper.sh --ablations-only
 
 Only `AdaptIVF` and `AdaptIVF+PQ` are first-class AdaptIVF methods in this repository. The `Static` and `A4` variants are kept only as ablation-only internal baselines and are not part of the public method surface or packaged API.
 
-For the finished paper artifact bundle and exact post-run export contents, see [`paper_exports/README.md`](paper_exports/README.md).
+For the finished paper artifact bundle and the canonical post-run export layout, see [`paper_exports/README.md`](paper_exports/README.md).
 
 ## Measurement Contract
 
