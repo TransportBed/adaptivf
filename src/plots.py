@@ -10,6 +10,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib.patches import Patch
 from matplotlib.ticker import MaxNLocator
 
 from artifacts import write_json
@@ -34,6 +35,15 @@ MAIN_PLOT_METHOD_ORDER = [
     "HNSW",
     "IVF",
     "IVFPQ",
+    "BLISS",
+    "LIRA",
+    "AdaptIVF",
+    "AdaptIVF-m80",
+    "AdaptIVF+PQ",
+    "AdaptIVF+PQ-m80",
+]
+
+APPENDIX_LEARNED_METHOD_ORDER = [
     "BLISS",
     "LIRA",
     "AdaptIVF",
@@ -600,6 +610,7 @@ def _range_bar_facets(
     if not datasets:
         return
     fig, axes = _facet_axes(datasets)
+    legend_handles: dict[str, Patch] = {}
     for ax, dataset in zip(axes, datasets):
         ds = df[df["dataset"] == dataset].dropna(subset=[y_mid, y_lo, y_hi])
         methods = [m for m in method_order if m in ds["method"].values]
@@ -620,13 +631,23 @@ def _range_bar_facets(
         ax.bar(x_pos, mids, color=colors, edgecolor="white", width=0.7)
         ax.errorbar(x_pos, mids, yerr=[los, his], fmt="none", ecolor="black", capsize=4, linewidth=1.2)
         ax.set_xticks(x_pos)
-        ax.set_xticklabels(methods, rotation=45, ha="right", fontsize=TICK_LABEL_FONT_SIZE)
+        ax.set_xticklabels([_method_label(m) for m in methods], rotation=45, ha="right", fontsize=TICK_LABEL_FONT_SIZE)
         ax.set_title(_dataset_label(dataset), fontsize=TITLE_FONT_SIZE)
         ax.grid(True, axis="y", alpha=0.25)
         ax.tick_params(axis="y", labelsize=TICK_LABEL_FONT_SIZE)
+        for method, color in zip(methods, colors):
+            legend_handles.setdefault(method, Patch(facecolor=color, edgecolor="white"))
     for ax in axes[1:]:
         ax.tick_params(axis="y", labelleft=False)
     fig.supylabel(ylabel or y_mid, fontsize=AXIS_LABEL_FONT_SIZE, x=SUPYLABEL_X)
+    ordered_methods = [m for m in method_order if m in legend_handles]
+    _draw_shared_legend(
+        fig,
+        [legend_handles[m] for m in ordered_methods],
+        [_method_label(m) for m in ordered_methods],
+        single_row=False,
+        ncols_override=3,
+    )
     _save_csv(df, stem)
     _save_plot(fig, stem)
 
@@ -638,6 +659,7 @@ def _ablation_plot(df: pd.DataFrame, *, x: str, stem: Path, title: str) -> None:
     if not datasets:
         return
     fig, axes = _facet_axes(datasets)
+    legend_handles = {}
     for ax, dataset in zip(axes, datasets):
         ds_df = df[df["dataset"] == dataset]
         for family in ABLATION_FAMILIES:
@@ -650,13 +672,14 @@ def _ablation_plot(df: pd.DataFrame, *, x: str, stem: Path, title: str) -> None:
             ax.plot(fam_rows[x], fam_rows["recall_at_10"], color=color, linewidth=1.8, alpha=0.9)
             for _, row in fam_rows.iterrows():
                 _, marker = _method_style(str(row["method"]))
-                ax.scatter(
+                handle = ax.scatter(
                     row[x],
                     row["recall_at_10"],
                     color=METHOD_COLORS.get(str(row["method"]), color),
                     marker=marker,
                     s=ABLATION_MARKER_SIZE,
                 )
+                legend_handles.setdefault(str(row["method"]), handle)
         ax.set_title(_dataset_label(dataset), fontsize=TITLE_FONT_SIZE)
         ax.grid(True, alpha=0.25)
         ax.tick_params(axis="both", labelsize=TICK_LABEL_FONT_SIZE)
@@ -665,6 +688,14 @@ def _ablation_plot(df: pd.DataFrame, *, x: str, stem: Path, title: str) -> None:
         ax.tick_params(axis="y", labelleft=False)
     fig.supxlabel(x, fontsize=AXIS_LABEL_FONT_SIZE, y=SUPXLABEL_Y)
     fig.supylabel("recall_at_10", fontsize=AXIS_LABEL_FONT_SIZE, x=SUPYLABEL_X)
+    ordered_methods = [m for m in ABLATION_METHODS if m in legend_handles]
+    _draw_shared_legend(
+        fig,
+        [legend_handles[m] for m in ordered_methods],
+        [_method_label(m) for m in ordered_methods],
+        single_row=False,
+        ncols_override=3,
+    )
     _save_csv(df, stem)
     _save_plot(fig, stem)
 
@@ -1049,7 +1080,7 @@ def main() -> None:
 
     # A2b: query-RAM plots (all methods)
     if not comp_df.empty and "query_mem_delta_mb" in comp_df.columns:
-        query_ram_df = comp_df.dropna(subset=["query_mem_delta_mb"])
+        query_ram_df = _restrict_methods(comp_df, APPENDIX_LEARNED_METHOD_ORDER).dropna(subset=["query_mem_delta_mb"])
         if not query_ram_df.empty:
             stem = out_root / "appendix_query_ram_vs_index_overhead_facets"
             _scatter_facets(
@@ -1058,11 +1089,11 @@ def main() -> None:
                 y="query_mem_delta_mb",
                 stem=stem,
                 title="Appendix: Query RAM delta vs index overhead",
-                method_order=MAIN_METHOD_ORDER,
+                method_order=APPENDIX_LEARNED_METHOD_ORDER,
                 xlabel="Index Overhead (MB)",
                 ylabel="Query RAM Delta (MB)",
                 legend_single_row=False,
-                legend_ncols_override=4,
+                legend_ncols_override=3,
             )
             plot_names.append(stem.stem)
             stem = out_root / "appendix_query_ram_bars"
@@ -1081,7 +1112,7 @@ def main() -> None:
 
     # A2c: serving-RAM plots (all methods with isolated RSS measurements)
     if not comp_df.empty and "rss_serving_mb" in comp_df.columns:
-        serving_ram_df = comp_df.dropna(subset=["rss_serving_mb"])
+        serving_ram_df = _restrict_methods(comp_df, APPENDIX_LEARNED_METHOD_ORDER).dropna(subset=["rss_serving_mb"])
         if not serving_ram_df.empty:
             stem = out_root / "appendix_serving_ram_vs_index_overhead_facets"
             _scatter_facets(
@@ -1090,11 +1121,11 @@ def main() -> None:
                 y="rss_serving_mb",
                 stem=stem,
                 title="Appendix: Serving RAM vs index overhead",
-                method_order=MAIN_METHOD_ORDER,
+                method_order=APPENDIX_LEARNED_METHOD_ORDER,
                 xlabel="Index Overhead (MB)",
                 ylabel="Serving RAM (MB)",
                 legend_single_row=False,
-                legend_ncols_override=4,
+                legend_ncols_override=3,
             )
             plot_names.append(stem.stem)
             stem = out_root / "appendix_serving_ram_bars"
@@ -1113,10 +1144,10 @@ def main() -> None:
 
     # A3: Computation range bars (methods that report min/max)
     if not comp_df.empty and "computation_min" in comp_df.columns and "computation_max" in comp_df.columns:
-        range_df = comp_df.dropna(subset=["avg_computations", "computation_min", "computation_max"])
+        range_df = _restrict_methods(comp_df, APPENDIX_LEARNED_METHOD_ORDER).dropna(subset=["avg_computations", "computation_min", "computation_max"])
         if not range_df.empty:
             stem = out_root / "appendix_computation_range_bars"
-            _range_bar_facets(range_df, y_mid="avg_computations", y_lo="computation_min", y_hi="computation_max", stem=stem, title="Appendix: Per-query computation range (min / avg / max)", method_order=MAIN_METHOD_ORDER, ylabel="distance computations")
+            _range_bar_facets(range_df, y_mid="avg_computations", y_lo="computation_min", y_hi="computation_max", stem=stem, title="Appendix: Per-query computation range (min / avg / max)", method_order=APPENDIX_LEARNED_METHOD_ORDER, ylabel="distance computations")
             plot_names.append(stem.stem)
 
     # A4: QPS grouped bars (all methods)
